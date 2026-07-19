@@ -4,24 +4,34 @@ import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { nanoid } from "nanoid";
 import "@xterm/xterm/css/xterm.css";
 import "./Terminal.css";
 
 type Props = {
+  ptyId: string;
   command?: string;
   args?: string[];
   cwd?: string | null;
+  onFocus?: () => void;
 };
 
-export function Terminal({ command = "", args = [], cwd = null }: Props) {
+const EMPTY_ARGS: string[] = [];
+
+export function Terminal({
+  ptyId,
+  command = "",
+  args = EMPTY_ARGS,
+  cwd = null,
+  onFocus,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const onFocusRef = useRef(onFocus);
+  onFocusRef.current = onFocus;
+  const spawnArgsRef = useRef({ command, args, cwd });
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
-    const id = nanoid();
 
     const term = new XTerm({
       fontFamily:
@@ -59,9 +69,17 @@ export function Terminal({ command = "", args = [], cwd = null }: Props) {
     fitAddon.fit();
 
     const { cols, rows } = term;
+    const { command: cmd, args: cmdArgs, cwd: cmdCwd } = spawnArgsRef.current;
 
     let spawned = false;
-    invoke("pty_spawn", { id, command, args, cwd, cols, rows })
+    invoke("pty_spawn", {
+      id: ptyId,
+      command: cmd,
+      args: cmdArgs,
+      cwd: cmdCwd,
+      cols,
+      rows,
+    })
       .then(() => {
         spawned = true;
       })
@@ -69,20 +87,23 @@ export function Terminal({ command = "", args = [], cwd = null }: Props) {
         term.write(`\r\n\x1b[31mFailed to spawn PTY: ${err}\x1b[0m\r\n`);
       });
 
-    const unlistenDataPromise = listen<string>(`pty:data:${id}`, (evt) => {
-      term.write(evt.payload);
-    });
+    const unlistenDataPromise = listen<string>(
+      `pty:data:${ptyId}`,
+      (evt) => {
+        term.write(evt.payload);
+      },
+    );
 
-    const unlistenClosePromise = listen(`pty:close:${id}`, () => {
+    const unlistenClosePromise = listen(`pty:close:${ptyId}`, () => {
       term.write("\r\n\x1b[90m[process exited]\x1b[0m\r\n");
     });
 
     const dataSub = term.onData((data) => {
-      invoke("pty_write", { id, data }).catch(() => {});
+      invoke("pty_write", { id: ptyId, data }).catch(() => {});
     });
 
     const resizeSub = term.onResize(({ cols, rows }) => {
-      invoke("pty_resize", { id, cols, rows }).catch(() => {});
+      invoke("pty_resize", { id: ptyId, cols, rows }).catch(() => {});
     });
 
     const ro = new ResizeObserver(() => {
@@ -94,18 +115,22 @@ export function Terminal({ command = "", args = [], cwd = null }: Props) {
     });
     ro.observe(container);
 
+    const handleClick = () => onFocusRef.current?.();
+    container.addEventListener("mousedown", handleClick);
+
     return () => {
+      container.removeEventListener("mousedown", handleClick);
       ro.disconnect();
       dataSub.dispose();
       resizeSub.dispose();
       unlistenDataPromise.then((fn) => fn());
       unlistenClosePromise.then((fn) => fn());
       if (spawned) {
-        invoke("pty_kill", { id }).catch(() => {});
+        invoke("pty_kill", { id: ptyId }).catch(() => {});
       }
       term.dispose();
     };
-  }, [command, args, cwd]);
+  }, [ptyId]);
 
   return <div ref={containerRef} className="terminal-container" />;
 }

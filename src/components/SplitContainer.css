@@ -1,0 +1,52 @@
+.pane-leaf {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  transition: border-color 0.1s ease;
+}
+
+.pane-leaf.active {
+  border-color: #7aa2f7;
+}
+
+.split {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.split-h {
+  flex-direction: row;
+}
+
+.split-v {
+  flex-direction: column;
+}
+
+.split-child {
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.separator {
+  background: #15161e;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.separator:hover {
+  background: #7aa2f7;
+}
+
+.separator-h {
+  width: 4px;
+  cursor: col-resize;
+}
+
+.separator-v {
+  height: 4px;
+  cursor: row-resize;
+}
