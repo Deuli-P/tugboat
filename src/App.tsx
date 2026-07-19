@@ -1,7 +1,10 @@
 import { useEffect } from "react";
+import { Sidebar } from "./components/Sidebar";
 import { TabBar } from "./components/TabBar";
 import { SplitContainer } from "./components/SplitContainer";
+import { ConfigEditor } from "./components/ConfigEditor";
 import { useTabs } from "./state/tabs";
+import { useButtons } from "./state/buttons";
 import "./App.css";
 
 function App() {
@@ -11,6 +14,13 @@ function App() {
   const closeTab = useTabs((s) => s.closeTab);
   const splitPane = useTabs((s) => s.splitPane);
   const closePane = useTabs((s) => s.closePane);
+  const hydrate = useButtons((s) => s.hydrate);
+  const editorOpen = useButtons((s) => s.editorOpen);
+  const closeEditor = useButtons((s) => s.closeEditor);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -45,18 +55,22 @@ function App() {
 
   return (
     <div className="app">
-      <TabBar />
-      <div className="tab-content">
-        {tabs.map((tab) => (
-          <div
-            key={tab.id}
-            className="tab-panel"
-            style={{ display: tab.id === activeTabId ? "block" : "none" }}
-          >
-            <SplitContainer tab={tab} node={tab.root} />
-          </div>
-        ))}
+      <Sidebar />
+      <div className="main">
+        <TabBar />
+        <div className="tab-content">
+          {tabs.map((tab) => (
+            <div
+              key={tab.id}
+              className="tab-panel"
+              style={{ display: tab.id === activeTabId ? "block" : "none" }}
+            >
+              <SplitContainer tab={tab} node={tab.root} />
+            </div>
+          ))}
+        </div>
       </div>
+      <ConfigEditor open={editorOpen} onClose={closeEditor} />
     </div>
   );
 }

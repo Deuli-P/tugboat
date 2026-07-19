@@ -3,10 +3,19 @@ import { nanoid } from "nanoid";
 
 export type SplitDir = "h" | "v";
 
+export type SpawnConfig = {
+  command?: string;
+  args?: string[];
+  cwd?: string | null;
+};
+
 export type LeafNode = {
   kind: "leaf";
   id: string;
   ptyId: string;
+  command: string;
+  args: string[];
+  cwd: string | null;
 };
 
 export type SplitNode = {
@@ -27,28 +36,45 @@ export type Tab = {
   activeLeafId: string;
 };
 
+type AddTabOpts = {
+  title?: string;
+  spawn?: SpawnConfig;
+};
+
 type Store = {
   tabs: Tab[];
   activeTabId: string | null;
-  addTab: () => void;
+  addTab: (opts?: AddTabOpts) => void;
   closeTab: (tabId: string) => void;
   setActiveTab: (tabId: string) => void;
   setActiveLeaf: (tabId: string, leafId: string) => void;
-  splitPane: (tabId: string, leafId: string, dir: SplitDir) => void;
+  splitPane: (
+    tabId: string,
+    leafId: string,
+    dir: SplitDir,
+    spawn?: SpawnConfig,
+  ) => void;
   closePane: (tabId: string, leafId: string) => void;
   setRatio: (tabId: string, splitId: string, ratio: number) => void;
   renameTab: (tabId: string, title: string) => void;
 };
 
-function makeLeaf(): LeafNode {
-  return { kind: "leaf", id: nanoid(8), ptyId: nanoid(12) };
+function makeLeaf(spawn?: SpawnConfig): LeafNode {
+  return {
+    kind: "leaf",
+    id: nanoid(8),
+    ptyId: nanoid(12),
+    command: spawn?.command ?? "",
+    args: spawn?.args ?? [],
+    cwd: spawn?.cwd ?? null,
+  };
 }
 
-function makeTab(index: number): Tab {
-  const leaf = makeLeaf();
+function makeTab(index: number, opts?: AddTabOpts): Tab {
+  const leaf = makeLeaf(opts?.spawn);
   return {
     id: nanoid(8),
-    title: `shell ${index}`,
+    title: opts?.title ?? `shell ${index}`,
     root: leaf,
     activeLeafId: leaf.id,
   };
@@ -72,21 +98,6 @@ function transform(
   return { ...node, a: newA, b: newB };
 }
 
-function replaceLeaf(
-  node: PaneNode,
-  leafId: string,
-  replacement: PaneNode,
-): PaneNode {
-  if (node.kind === "leaf") {
-    return node.id === leafId ? replacement : node;
-  }
-  return {
-    ...node,
-    a: replaceLeaf(node.a, leafId, replacement),
-    b: replaceLeaf(node.b, leafId, replacement),
-  };
-}
-
 function updateSplitRatio(
   node: PaneNode,
   splitId: string,
@@ -107,9 +118,9 @@ export const useTabs = create<Store>((set) => ({
   tabs: [initialTab],
   activeTabId: initialTab.id,
 
-  addTab: () =>
+  addTab: (opts) =>
     set((s) => {
-      const tab = makeTab(s.tabs.length + 1);
+      const tab = makeTab(s.tabs.length + 1, opts);
       return { tabs: [...s.tabs, tab], activeTabId: tab.id };
     }),
 
@@ -138,11 +149,11 @@ export const useTabs = create<Store>((set) => ({
       ),
     })),
 
-  splitPane: (tabId, leafId, dir) =>
+  splitPane: (tabId, leafId, dir, spawn) =>
     set((s) => ({
       tabs: s.tabs.map((t) => {
         if (t.id !== tabId) return t;
-        const newLeaf = makeLeaf();
+        const newLeaf = makeLeaf(spawn);
         const replaceWith = (leaf: LeafNode): SplitNode => ({
           kind: "split",
           id: nanoid(8),
@@ -216,4 +227,4 @@ export function useActiveTab(): Tab | null {
   );
 }
 
-export { replaceLeaf, findLeaves };
+export { findLeaves };

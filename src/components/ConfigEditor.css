@@ -1,0 +1,175 @@
+.config-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 16, 27, 0.65);
+  backdrop-filter: blur(3px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.config-modal {
+  width: 100%;
+  max-width: 900px;
+  height: 100%;
+  max-height: 700px;
+  background: #1a1b26;
+  border: 1px solid #414868;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.config-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #24283b;
+  background: #15161e;
+  flex-shrink: 0;
+}
+
+.config-title {
+  color: #7aa2f7;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.config-path {
+  color: #565f89;
+  font-size: 11px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: Menlo, "SF Mono", monospace;
+}
+
+.config-close {
+  background: transparent;
+  border: none;
+  color: #565f89;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: color 0.1s ease, background 0.1s ease;
+}
+
+.config-close:hover {
+  color: #c0caf5;
+  background: #414868;
+}
+
+.config-textarea {
+  flex: 1;
+  min-height: 0;
+  border: none;
+  background: #1a1b26;
+  color: #c0caf5;
+  font-family: Menlo, "SF Mono", Monaco, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 14px 16px;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  tab-size: 2;
+  border-bottom: 2px solid transparent;
+}
+
+.config-textarea.has-error {
+  border-bottom-color: #f7768e;
+}
+
+.config-textarea:focus {
+  outline: none;
+}
+
+.config-textarea::selection {
+  background: #364a82;
+}
+
+.config-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #15161e;
+  border-top: 1px solid #24283b;
+  flex-shrink: 0;
+}
+
+.config-status {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.config-error {
+  color: #f7768e;
+}
+
+.config-saved {
+  color: #9ece6a;
+}
+
+.config-dirty {
+  color: #e0af68;
+}
+
+.config-clean {
+  color: #565f89;
+}
+
+.config-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.config-btn {
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.config-btn.secondary {
+  background: transparent;
+  color: #a9b1d6;
+  border-color: #414868;
+}
+
+.config-btn.secondary:hover {
+  background: #24283b;
+  color: #c0caf5;
+}
+
+.config-btn.primary {
+  background: #7aa2f7;
+  color: #15161e;
+  font-weight: 600;
+}
+
+.config-btn.primary:hover:not(:disabled) {
+  background: #9abbff;
+}
+
+.config-btn.primary:disabled {
+  background: #414868;
+  color: #565f89;
+  cursor: not-allowed;
+}
