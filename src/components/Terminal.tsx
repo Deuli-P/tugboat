@@ -12,6 +12,7 @@ type Props = {
   command?: string;
   args?: string[];
   cwd?: string | null;
+  waiting?: string | null;
   onFocus?: () => void;
 };
 
@@ -22,14 +23,17 @@ export function Terminal({
   command = "",
   args = EMPTY_ARGS,
   cwd = null,
+  waiting = null,
   onFocus,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const onFocusRef = useRef(onFocus);
   onFocusRef.current = onFocus;
   const spawnArgsRef = useRef({ command, args, cwd });
+  spawnArgsRef.current = { command, args, cwd };
 
   useEffect(() => {
+    if (waiting) return;
     const container = containerRef.current;
     if (!container) return;
 
@@ -130,7 +134,19 @@ export function Terminal({
       }
       term.dispose();
     };
-  }, [ptyId]);
+  }, [ptyId, waiting]);
 
-  return <div ref={containerRef} className="terminal-container" />;
+  return (
+    <div className="terminal-wrap">
+      <div ref={containerRef} className="terminal-container" />
+      {waiting && (
+        <div className="terminal-waiting" onMouseDown={() => onFocusRef.current?.()}>
+          <div className="waiting-badge">
+            <span className="waiting-spinner">◐</span>
+            <span className="waiting-text">{waiting}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

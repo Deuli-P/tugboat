@@ -24,6 +24,7 @@ export function SplitContainer({ tab, node }: Props) {
           command={node.command}
           args={node.args}
           cwd={node.cwd}
+          waiting={node.waiting ?? null}
           onFocus={() => setActiveLeaf(tab.id, node.id)}
         />
       </div>

@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { TabBar } from "./components/TabBar";
 import { SplitContainer } from "./components/SplitContainer";
 import { ConfigEditor } from "./components/ConfigEditor";
+import { ButtonEditor } from "./components/ButtonEditor";
+import { CommandPalette } from "./components/CommandPalette";
 import { useTabs } from "./state/tabs";
 import { useButtons } from "./state/buttons";
 import "./App.css";
@@ -17,6 +19,7 @@ function App() {
   const hydrate = useButtons((s) => s.hydrate);
   const editorOpen = useButtons((s) => s.editorOpen);
   const closeEditor = useButtons((s) => s.closeEditor);
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
     hydrate();
@@ -32,7 +35,10 @@ function App() {
 
       const key = e.key.toLowerCase();
 
-      if (key === "t" && !e.shiftKey) {
+      if (key === "k" && !e.shiftKey) {
+        e.preventDefault();
+        setPaletteOpen(true);
+      } else if (key === "t" && !e.shiftKey) {
         e.preventDefault();
         addTab();
       } else if (key === "w" && !e.shiftKey) {
@@ -71,6 +77,11 @@ function App() {
         </div>
       </div>
       <ConfigEditor open={editorOpen} onClose={closeEditor} />
+      <ButtonEditor />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+      />
     </div>
   );
 }

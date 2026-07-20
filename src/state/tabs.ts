@@ -7,6 +7,7 @@ export type SpawnConfig = {
   command?: string;
   args?: string[];
   cwd?: string | null;
+  waiting?: string | null;
 };
 
 export type LeafNode = {
@@ -16,6 +17,7 @@ export type LeafNode = {
   command: string;
   args: string[];
   cwd: string | null;
+  waiting?: string | null;
 };
 
 export type SplitNode = {
@@ -57,6 +59,7 @@ type Store = {
   closePane: (tabId: string, leafId: string) => void;
   setRatio: (tabId: string, splitId: string, ratio: number) => void;
   renameTab: (tabId: string, title: string) => void;
+  clearLeafWaiting: (leafId: string) => void;
 };
 
 function makeLeaf(spawn?: SpawnConfig): LeafNode {
@@ -67,6 +70,7 @@ function makeLeaf(spawn?: SpawnConfig): LeafNode {
     command: spawn?.command ?? "",
     args: spawn?.args ?? [],
     cwd: spawn?.cwd ?? null,
+    waiting: spawn?.waiting ?? null,
   };
 }
 
@@ -219,12 +223,28 @@ export const useTabs = create<Store>((set) => ({
     set((s) => ({
       tabs: s.tabs.map((t) => (t.id === tabId ? { ...t, title } : t)),
     })),
+
+  clearLeafWaiting: (leafId) =>
+    set((s) => ({
+      tabs: s.tabs.map((t) => ({
+        ...t,
+        root:
+          transform(t.root, (leaf) =>
+            leaf.id === leafId ? { ...leaf, waiting: null } : leaf,
+          ) ?? t.root,
+      })),
+    })),
 }));
 
 export function useActiveTab(): Tab | null {
   return useTabs((s) =>
     s.tabs.find((t) => t.id === s.activeTabId) ?? null,
   );
+}
+
+export function findLeaf(node: PaneNode, leafId: string): LeafNode | null {
+  if (node.kind === "leaf") return node.id === leafId ? node : null;
+  return findLeaf(node.a, leafId) ?? findLeaf(node.b, leafId);
 }
 
 export { findLeaves };

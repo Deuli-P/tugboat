@@ -18,6 +18,33 @@ impl Default for PtyState {
     }
 }
 
+fn shell_quote(s: &str) -> String {
+    if s.is_empty() {
+        return String::from("''");
+    }
+    let needs_quoting = s.chars().any(|c| {
+        c.is_whitespace() || "'\"\\$`&|<>*?[](){}#!;~".contains(c)
+    });
+    if !needs_quoting {
+        return s.to_string();
+    }
+    if !s.contains('\'') {
+        return format!("'{}'", s);
+    }
+    let mut out = String::from("\"");
+    for c in s.chars() {
+        match c {
+            '"' | '\\' | '$' | '`' => {
+                out.push('\\');
+                out.push(c);
+            }
+            _ => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
 #[tauri::command]
 pub fn pty_spawn(
     app: AppHandle,
@@ -39,16 +66,10 @@ pub fn pty_spawn(
         })
         .map_err(|e| e.to_string())?;
 
-    let shell = if command.trim().is_empty() {
-        std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".to_string())
-    } else {
-        command
-    };
-
+    let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".to_string());
     let mut cmd = CommandBuilder::new(&shell);
-    for arg in args {
-        cmd.arg(arg);
-    }
+    cmd.arg("-l");
+
     if let Some(dir) = cwd {
         cmd.cwd(dir);
     }
@@ -62,11 +83,23 @@ pub fn pty_spawn(
         .map_err(|e| e.to_string())?;
     drop(pair.slave);
 
-    let writer = pair.master.take_writer().map_err(|e| e.to_string())?;
+    let mut writer = pair.master.take_writer().map_err(|e| e.to_string())?;
     let mut reader = pair
         .master
         .try_clone_reader()
         .map_err(|e| e.to_string())?;
+
+    let trimmed_command = command.trim();
+    if !trimmed_command.is_empty() {
+        let mut line = shell_quote(trimmed_command);
+        for arg in &args {
+            line.push(' ');
+            line.push_str(&shell_quote(arg));
+        }
+        line.push('\n');
+        let _ = writer.write_all(line.as_bytes());
+        let _ = writer.flush();
+    }
 
     let app_clone = app.clone();
     let id_clone = id.clone();

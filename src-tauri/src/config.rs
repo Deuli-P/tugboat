@@ -5,6 +5,27 @@ use tauri::{AppHandle, Manager};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ExtraPane {
+    #[serde(default = "default_dir")]
+    pub dir: String,
+    #[serde(default)]
+    pub command: String,
+    #[serde(default)]
+    pub args: Vec<String>,
+    #[serde(default)]
+    pub cwd: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delay_ms: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub wait_for_text: Option<String>,
+}
+
+fn default_dir() -> String {
+    "h".to_string()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Button {
     pub id: String,
     pub label: String,
@@ -17,6 +38,8 @@ pub struct Button {
     pub cwd: Option<String>,
     #[serde(default = "default_open_in")]
     pub open_in: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub extra_panes: Vec<ExtraPane>,
 }
 
 fn default_open_in() -> String {
@@ -62,6 +85,7 @@ impl Default for ButtonsConfig {
                         args: vec!["pierre@1.2.3.4".to_string()],
                         cwd: None,
                         open_in: "tab".to_string(),
+                        extra_panes: vec![],
                     }],
                 },
                 Group {
@@ -79,6 +103,7 @@ impl Default for ButtonsConfig {
                                 .to_string(),
                         ),
                         open_in: "tab".to_string(),
+                        extra_panes: vec![],
                     }],
                 },
                 Group {
@@ -93,6 +118,7 @@ impl Default for ButtonsConfig {
                         args: vec![],
                         cwd: None,
                         open_in: "split-h".to_string(),
+                        extra_panes: vec![],
                     }],
                 },
             ],

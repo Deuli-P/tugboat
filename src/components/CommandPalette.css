@@ -1,0 +1,153 @@
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 16, 27, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 150;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+
+.palette {
+  width: 100%;
+  max-width: 640px;
+  background: #1a1b26;
+  border: 1px solid #414868;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+}
+
+.palette-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #24283b;
+  background: #15161e;
+}
+
+.palette-icon {
+  color: #565f89;
+  font-size: 11px;
+  font-weight: 600;
+  background: #24283b;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-family: Menlo, "SF Mono", monospace;
+}
+
+.palette-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #c0caf5;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.palette-search input::placeholder {
+  color: #565f89;
+}
+
+.palette-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.05s ease;
+}
+
+.palette-item.active {
+  background: #364a82;
+}
+
+.pi-icon {
+  font-size: 18px;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.pi-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pi-label {
+  color: #c0caf5;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pi-sub {
+  color: #565f89;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: Menlo, "SF Mono", monospace;
+}
+
+.palette-item.active .pi-sub {
+  color: #a9b1d6;
+}
+
+.pi-arrow {
+  color: #7aa2f7;
+  font-size: 15px;
+  font-weight: 700;
+  padding-left: 8px;
+  flex-shrink: 0;
+}
+
+.palette-empty {
+  padding: 20px;
+  text-align: center;
+  color: #565f89;
+  font-size: 12px;
+}
+
+.palette-footer {
+  display: flex;
+  gap: 14px;
+  padding: 8px 14px;
+  background: #15161e;
+  border-top: 1px solid #24283b;
+  color: #565f89;
+  font-size: 11px;
+}
+
+.palette-footer kbd {
+  display: inline-block;
+  background: #24283b;
+  border: 1px solid #414868;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: Menlo, "SF Mono", monospace;
+  font-size: 10px;
+  color: #a9b1d6;
+  margin: 0 2px;
+}
