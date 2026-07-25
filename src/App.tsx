@@ -7,6 +7,7 @@ import { ButtonEditor } from "./components/ButtonEditor";
 import { CommandPalette } from "./components/CommandPalette";
 import { useTabs } from "./state/tabs";
 import { useButtons } from "./state/buttons";
+import { maybeStartTourOnBoot } from "./lib/tour";
 import "./App.css";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
 
   useEffect(() => {
     hydrate();
+    maybeStartTourOnBoot();
   }, [hydrate]);
 
   useEffect(() => {

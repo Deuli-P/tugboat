@@ -1,0 +1,116 @@
+.updater-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid #24283b;
+  margin-top: 4px;
+}
+
+.up-version {
+  font-size: 10px;
+  color: #565f89;
+  text-align: center;
+  font-family: Menlo, "SF Mono", monospace;
+  letter-spacing: 0.3px;
+}
+
+.up-btn {
+  width: 100%;
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid #414868;
+  border-radius: 4px;
+  color: #a9b1d6;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    color 0.1s ease,
+    border-color 0.1s ease,
+    background 0.1s ease;
+  font-family: inherit;
+}
+
+.up-btn:hover {
+  color: #7aa2f7;
+  border-color: #7aa2f7;
+}
+
+.up-btn.primary {
+  background: #9ece6a;
+  color: #15161e;
+  border-color: #9ece6a;
+  font-weight: 600;
+}
+
+.up-btn.primary:hover {
+  background: #b3e089;
+  color: #15161e;
+  border-color: #b3e089;
+}
+
+.up-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: #a9b1d6;
+  border: 1px solid #24283b;
+  border-radius: 4px;
+}
+
+.up-status.success {
+  color: #9ece6a;
+  border-color: #2e3f2b;
+  background: rgba(158, 206, 106, 0.08);
+}
+
+.up-status.error {
+  color: #f7768e;
+  border-color: #4a2b30;
+  background: rgba(247, 118, 142, 0.08);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.up-spinner {
+  color: #7aa2f7;
+  animation: up-rotate 1.2s linear infinite;
+  display: inline-block;
+}
+
+@keyframes up-rotate {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
+}
+
+.up-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px 8px;
+  border: 1px solid #24283b;
+  border-radius: 4px;
+}
+
+.up-progress-label {
+  font-size: 11px;
+  color: #a9b1d6;
+  text-align: center;
+}
+
+.up-progress-bar {
+  height: 4px;
+  background: #24283b;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.up-progress-fill {
+  height: 100%;
+  background: #7aa2f7;
+  transition: width 0.2s ease;
+}

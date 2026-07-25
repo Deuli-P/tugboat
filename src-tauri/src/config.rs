@@ -72,56 +72,21 @@ impl Default for ButtonsConfig {
     fn default() -> Self {
         ButtonsConfig {
             version: 1,
-            groups: vec![
-                Group {
-                    id: "vps".to_string(),
-                    label: "VPS".to_string(),
-                    icon: Some("🖥️".to_string()),
-                    buttons: vec![Button {
-                        id: "vps-dc".to_string(),
-                        label: "Connexion VPS - DC".to_string(),
-                        icon: Some("🌐".to_string()),
-                        command: "ssh".to_string(),
-                        args: vec!["pierre@1.2.3.4".to_string()],
-                        cwd: None,
-                        open_in: "tab".to_string(),
-                        extra_panes: vec![],
-                    }],
-                },
-                Group {
-                    id: "projects".to_string(),
-                    label: "Projets".to_string(),
-                    icon: Some("💧".to_string()),
-                    buttons: vec![Button {
-                        id: "drillr-push".to_string(),
-                        label: "Push Drillr Back".to_string(),
-                        icon: Some("⬆️".to_string()),
-                        command: "supabase".to_string(),
-                        args: vec!["db".to_string(), "push".to_string()],
-                        cwd: Some(
-                            "/Users/deuli/Documents/GitHub/interview-quiz/backend"
-                                .to_string(),
-                        ),
-                        open_in: "tab".to_string(),
-                        extra_panes: vec![],
-                    }],
-                },
-                Group {
-                    id: "tools".to_string(),
-                    label: "Outils".to_string(),
-                    icon: Some("🛠️".to_string()),
-                    buttons: vec![Button {
-                        id: "claude-here".to_string(),
-                        label: "Claude ici".to_string(),
-                        icon: Some("🤖".to_string()),
-                        command: "claude".to_string(),
-                        args: vec![],
-                        cwd: None,
-                        open_in: "split-h".to_string(),
-                        extra_panes: vec![],
-                    }],
-                },
-            ],
+            groups: vec![Group {
+                id: "default".to_string(),
+                label: "Default".to_string(),
+                icon: Some("👋".to_string()),
+                buttons: vec![Button {
+                    id: "hello-world".to_string(),
+                    label: "Hello world".to_string(),
+                    icon: Some("🚀".to_string()),
+                    command: "echo".to_string(),
+                    args: vec!["hello world".to_string()],
+                    cwd: None,
+                    open_in: "split-h".to_string(),
+                    extra_panes: vec![],
+                }],
+            }],
         }
     }
 }

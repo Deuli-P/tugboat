@@ -9,7 +9,7 @@ export function TabBar() {
   const closeTab = useTabs((s) => s.closeTab);
 
   return (
-    <div className="tab-bar">
+    <div className="tab-bar" data-tour="tab-bar">
       <div className="tab-list">
         {tabs.map((tab) => (
           <div

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useButtons, type ExtraPane } from "../state/buttons";
 import { launchButton } from "../lib/launch";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
+import { UpdaterButton } from "./UpdaterButton";
+import { startTour } from "../lib/tour";
 import "./Sidebar.css";
 
 type MenuState = {
@@ -129,9 +131,17 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" data-tour="sidebar">
       <div className="sidebar-header">
         <span className="sidebar-title">Tugboat</span>
+        <button
+          className="header-help-btn"
+          onClick={() => startTour()}
+          title="Relancer le tour"
+          aria-label="Help"
+        >
+          ?
+        </button>
       </div>
       <div className="sidebar-body">
         {groups.length === 0 && (
@@ -244,17 +254,20 @@ export function Sidebar() {
       <div className="sidebar-footer">
         <button
           className="footer-btn primary"
+          data-tour="new-btn"
           onClick={() => openButtonEditor({ mode: "new" })}
         >
           + Nouveau bouton
         </button>
         <button
           className="footer-btn"
+          data-tour="json-btn"
           onClick={openEditor}
           title="Éditer le JSON brut"
         >
           buttons.json
         </button>
+        <UpdaterButton />
       </div>
 
       {menu && (
