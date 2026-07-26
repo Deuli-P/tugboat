@@ -8,6 +8,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { useTabs } from "./state/tabs";
 import { useButtons } from "./state/buttons";
 import { maybeStartTourOnBoot } from "./lib/tour";
+import { hydrateSession, installSessionAutosave } from "./lib/session";
 import "./App.css";
 
 function App() {
@@ -24,7 +25,10 @@ function App() {
 
   useEffect(() => {
     hydrate();
-    maybeStartTourOnBoot();
+    hydrateSession().finally(() => {
+      installSessionAutosave();
+      maybeStartTourOnBoot();
+    });
   }, [hydrate]);
 
   useEffect(() => {

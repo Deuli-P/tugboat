@@ -1,8 +1,10 @@
 mod config;
 mod pty;
+mod session;
 
 use config::{config_load, config_path, config_save};
 use pty::{pty_kill, pty_resize, pty_spawn, pty_write, PtyState};
+use session::{session_clear, session_load, session_save};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -20,6 +22,9 @@ pub fn run() {
             config_load,
             config_save,
             config_path,
+            session_load,
+            session_save,
+            session_clear,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

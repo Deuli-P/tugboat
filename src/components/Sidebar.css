@@ -241,3 +241,51 @@
   color: #7aa2f7;
   border-color: #7aa2f7;
 }
+
+.pref-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+}
+
+.pref-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #a9b1d6;
+  font-size: 11px;
+  cursor: pointer;
+  user-select: none;
+  padding: 3px 4px;
+  border-radius: 3px;
+  transition: color 0.1s ease;
+}
+
+.pref-toggle:hover {
+  color: #c0caf5;
+}
+
+.pref-toggle input[type="checkbox"] {
+  accent-color: #7aa2f7;
+  margin: 0;
+  cursor: pointer;
+}
+
+.pref-mini {
+  background: transparent;
+  border: 1px solid #414868;
+  border-radius: 3px;
+  color: #565f89;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: color 0.1s ease, border-color 0.1s ease, background 0.1s ease;
+}
+
+.pref-mini:hover {
+  color: #f7768e;
+  border-color: #f7768e;
+  background: rgba(247, 118, 142, 0.08);
+}

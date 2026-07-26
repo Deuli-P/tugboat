@@ -4,6 +4,11 @@ import { launchButton } from "../lib/launch";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { UpdaterButton } from "./UpdaterButton";
 import { startTour } from "../lib/tour";
+import {
+  isRestoreEnabled,
+  setRestoreEnabled,
+  clearSavedSession,
+} from "../lib/session";
 import "./Sidebar.css";
 
 type MenuState = {
@@ -33,6 +38,18 @@ export function Sidebar() {
   const updateGroup = useButtons((s) => s.updateGroup);
 
   const [menu, setMenu] = useState<MenuState | null>(null);
+  const [restoreOn, setRestoreOn] = useState(isRestoreEnabled());
+
+  const toggleRestore = () => {
+    const next = !restoreOn;
+    setRestoreEnabled(next);
+    setRestoreOn(next);
+  };
+
+  const wipeSession = async () => {
+    if (!confirm("Effacer la session sauvegardée ? Au prochain lancement tu repartiras d'un onglet vide.")) return;
+    await clearSavedSession();
+  };
 
   if (!loaded) {
     return (
@@ -267,6 +284,25 @@ export function Sidebar() {
         >
           buttons.json
         </button>
+
+        <div className="pref-row">
+          <label className="pref-toggle" title="Restaure les onglets et splits au prochain lancement">
+            <input
+              type="checkbox"
+              checked={restoreOn}
+              onChange={toggleRestore}
+            />
+            <span>Restaurer la session</span>
+          </label>
+          <button
+            className="pref-mini"
+            onClick={wipeSession}
+            title="Effacer la session sauvegardée"
+          >
+            🗑
+          </button>
+        </div>
+
         <UpdaterButton />
       </div>
 
