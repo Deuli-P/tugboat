@@ -4,8 +4,41 @@ import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { openUrl, openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
 import "@xterm/xterm/css/xterm.css";
 import "./Terminal.css";
+
+async function handleLinkClick(uri: string) {
+  try {
+    if (/^(https?|ftp|ws|wss):\/\//i.test(uri)) {
+      await openUrl(uri);
+      return;
+    }
+    if (uri.startsWith("file://")) {
+      const path = decodeURIComponent(uri.replace(/^file:\/\//, ""));
+      try {
+        await openPath(path);
+      } catch {
+        await revealItemInDir(path);
+      }
+      return;
+    }
+    if (uri.startsWith("/") || uri.startsWith("~")) {
+      const path = uri.startsWith("~")
+        ? uri.replace(/^~/, "")
+        : uri;
+      try {
+        await openPath(path);
+      } catch {
+        await revealItemInDir(path);
+      }
+      return;
+    }
+    await openUrl(uri);
+  } catch (err) {
+    console.error("Failed to open link:", uri, err);
+  }
+}
 
 type Props = {
   ptyId: string;
@@ -68,7 +101,11 @@ export function Terminal({
 
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
-    term.loadAddon(new WebLinksAddon());
+    term.loadAddon(
+      new WebLinksAddon((_evt, uri) => {
+        void handleLinkClick(uri);
+      }),
+    );
     term.open(container);
     fitAddon.fit();
 
