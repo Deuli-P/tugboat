@@ -70,8 +70,8 @@ function App() {
           {tabs.map((tab) => (
             <div
               key={tab.id}
-              className="tab-panel"
-              style={{ display: tab.id === activeTabId ? "block" : "none" }}
+              className={`tab-panel ${tab.id === activeTabId ? "active" : ""}`}
+              aria-hidden={tab.id !== activeTabId}
             >
               <SplitContainer tab={tab} node={tab.root} />
             </div>
