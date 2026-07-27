@@ -36,11 +36,13 @@ export type Tab = {
   title: string;
   root: PaneNode;
   activeLeafId: string;
+  buttonId?: string | null;
 };
 
 type AddTabOpts = {
   title?: string;
   spawn?: SpawnConfig;
+  buttonId?: string | null;
 };
 
 type Store = {
@@ -81,6 +83,7 @@ function makeTab(index: number, opts?: AddTabOpts): Tab {
     title: opts?.title ?? `shell ${index}`,
     root: leaf,
     activeLeafId: leaf.id,
+    buttonId: opts?.buttonId ?? null,
   };
 }
 

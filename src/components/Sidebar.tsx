@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useButtons, type ExtraPane } from "../state/buttons";
+import { useUI } from "../state/ui";
 import { launchButton } from "../lib/launch";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { UpdaterButton } from "./UpdaterButton";
@@ -36,6 +37,9 @@ export function Sidebar() {
   const removeButton = useButtons((s) => s.removeButton);
   const removeGroup = useButtons((s) => s.removeGroup);
   const updateGroup = useButtons((s) => s.updateGroup);
+
+  const toggleSidebar = useUI((s) => s.toggleSidebar);
+  const openSettings = useUI((s) => s.openSettings);
 
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [restoreOn, setRestoreOn] = useState(isRestoreEnabled());
@@ -152,12 +156,28 @@ export function Sidebar() {
       <div className="sidebar-header">
         <span className="sidebar-title">Tugboat</span>
         <button
+          className="header-icon-btn"
+          onClick={openSettings}
+          title="Préférences"
+          aria-label="Settings"
+        >
+          ⚙
+        </button>
+        <button
           className="header-help-btn"
           onClick={() => startTour()}
           title="Relancer le tour"
           aria-label="Help"
         >
           ?
+        </button>
+        <button
+          className="header-icon-btn"
+          onClick={toggleSidebar}
+          title="Cacher la sidebar"
+          aria-label="Hide sidebar"
+        >
+          ‹
         </button>
       </div>
       <div className="sidebar-body">
@@ -214,6 +234,7 @@ export function Sidebar() {
                       waitForText: safeString(p?.waitForText) || null,
                     }));
                     const paneCount = 1 + extraPanes.length;
+                    const multiInstance = btn?.multiInstance === true;
                     const arrow =
                       openIn === "tab"
                         ? "⇥"
@@ -226,7 +247,11 @@ export function Sidebar() {
                         className="launcher-btn"
                         title={`${command} ${args.join(" ")}${
                           cwd ? ` (in ${cwd})` : ""
-                        }${paneCount > 1 ? ` · ${paneCount} panels` : ""}`}
+                        }${paneCount > 1 ? ` · ${paneCount} panels` : ""}${
+                          openIn === "tab" && !multiInstance
+                            ? " · onglet unique"
+                            : ""
+                        }`}
                         onClick={() =>
                           launchButton({
                             id: btnId,
@@ -237,6 +262,7 @@ export function Sidebar() {
                             cwd: cwd || null,
                             openIn: openIn as any,
                             extraPanes,
+                            multiInstance,
                           })
                         }
                         onContextMenu={(e) =>

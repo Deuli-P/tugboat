@@ -5,8 +5,11 @@ import { SplitContainer } from "./components/SplitContainer";
 import { ConfigEditor } from "./components/ConfigEditor";
 import { ButtonEditor } from "./components/ButtonEditor";
 import { CommandPalette } from "./components/CommandPalette";
+import { SettingsModal } from "./components/SettingsModal";
 import { useTabs } from "./state/tabs";
 import { useButtons } from "./state/buttons";
+import { useUI } from "./state/ui";
+import { applyTheme } from "./lib/theme";
 import { maybeStartTourOnBoot } from "./lib/tour";
 import { hydrateSession, installSessionAutosave } from "./lib/session";
 import "./App.css";
@@ -21,6 +24,8 @@ function App() {
   const hydrate = useButtons((s) => s.hydrate);
   const editorOpen = useButtons((s) => s.editorOpen);
   const closeEditor = useButtons((s) => s.closeEditor);
+  const sidebarCollapsed = useUI((s) => s.sidebarCollapsed);
+  const themeMode = useUI((s) => s.themeMode);
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
@@ -30,6 +35,11 @@ function App() {
       maybeStartTourOnBoot();
     });
   }, [hydrate]);
+
+  useEffect(() => {
+    const cleanup = applyTheme(themeMode);
+    return cleanup;
+  }, [themeMode]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -66,8 +76,8 @@ function App() {
   }, [addTab, closeTab, splitPane, closePane]);
 
   return (
-    <div className="app">
-      <Sidebar />
+    <div className={`app ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
+      {!sidebarCollapsed && <Sidebar />}
       <div className="main">
         <TabBar />
         <div className="tab-content">
@@ -84,6 +94,7 @@ function App() {
       </div>
       <ConfigEditor open={editorOpen} onClose={closeEditor} />
       <ButtonEditor />
+      <SettingsModal />
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}

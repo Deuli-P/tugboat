@@ -1,0 +1,217 @@
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 16, 27, 0.65);
+  backdrop-filter: blur(3px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.settings-modal {
+  width: 100%;
+  max-width: 520px;
+  background: var(--panel-bg, #1a1b26);
+  color: var(--text, #c0caf5);
+  border: 1px solid var(--border, #414868);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--sidebar-bg, #15161e);
+  border-bottom: 1px solid var(--border, #24283b);
+}
+
+.settings-title {
+  flex: 1;
+  color: var(--accent, #7aa2f7);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.settings-close {
+  background: transparent;
+  border: none;
+  color: var(--muted, #565f89);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 2px 8px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.settings-close:hover {
+  color: var(--text, #c0caf5);
+  background: var(--border, #414868);
+}
+
+.settings-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.settings-section-title {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text, #a9b1d6);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-reset {
+  background: transparent;
+  border: 1px solid var(--border, #414868);
+  color: var(--muted, #565f89);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.settings-reset:hover {
+  color: var(--text, #c0caf5);
+  border-color: var(--text, #a9b1d6);
+}
+
+.theme-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.theme-mode-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  background: var(--input-bg, #15161e);
+  border: 1px solid var(--border, #24283b);
+  border-radius: 6px;
+  color: var(--text, #a9b1d6);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.1s ease, background 0.1s ease;
+}
+
+.theme-mode-btn:hover {
+  border-color: var(--muted, #414868);
+}
+
+.theme-mode-btn.active {
+  border-color: var(--accent, #7aa2f7);
+  background: rgba(122, 162, 247, 0.1);
+}
+
+.theme-mode-label {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.theme-mode-hint {
+  font-size: 11px;
+  color: var(--muted, #565f89);
+}
+
+.color-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text, #a9b1d6);
+}
+
+.color-field > span {
+  width: 60px;
+}
+
+.color-field input[type="color"] {
+  width: 36px;
+  height: 28px;
+  border: 1px solid var(--border, #24283b);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-hex {
+  flex: 1;
+  background: var(--input-bg, #15161e);
+  border: 1px solid var(--border, #24283b);
+  color: var(--text, #c0caf5);
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-family: Menlo, "SF Mono", monospace;
+  font-size: 12px;
+  outline: none;
+}
+
+.color-hex:focus {
+  border-color: var(--accent, #7aa2f7);
+}
+
+.settings-hint {
+  margin: 0;
+  color: var(--muted, #565f89);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  background: var(--sidebar-bg, #15161e);
+  border-top: 1px solid var(--border, #24283b);
+}
+
+.settings-btn {
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.settings-btn.primary {
+  background: var(--accent, #7aa2f7);
+  color: #15161e;
+}
+
+.settings-btn.primary:hover {
+  filter: brightness(1.1);
+}

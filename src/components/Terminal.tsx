@@ -5,6 +5,7 @@ import { WebLinksAddon } from "@xterm/addon-web-links";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { openUrl, openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
+import { useTabs } from "../state/tabs";
 import "@xterm/xterm/css/xterm.css";
 import "./Terminal.css";
 
@@ -64,6 +65,9 @@ export function Terminal({
   onFocusRef.current = onFocus;
   const spawnArgsRef = useRef({ command, args, cwd });
   spawnArgsRef.current = { command, args, cwd };
+  const fitRef = useRef<FitAddon | null>(null);
+  const termRef = useRef<XTerm | null>(null);
+  const activeTabId = useTabs((s) => s.activeTabId);
 
   useEffect(() => {
     if (waiting) return;
@@ -76,6 +80,7 @@ export function Terminal({
       fontSize: 13,
       cursorBlink: true,
       allowProposedApi: true,
+      scrollback: 5000,
       theme: {
         background: "#1a1b26",
         foreground: "#c0caf5",
@@ -107,7 +112,13 @@ export function Terminal({
       }),
     );
     term.open(container);
-    fitAddon.fit();
+    fitRef.current = fitAddon;
+    termRef.current = term;
+    try {
+      fitAddon.fit();
+    } catch {
+      // ignore
+    }
 
     const { cols, rows } = term;
     const { command: cmd, args: cmdArgs, cwd: cmdCwd } = spawnArgsRef.current;
@@ -147,20 +158,32 @@ export function Terminal({
       invoke("pty_resize", { id: ptyId, cols, rows }).catch(() => {});
     });
 
-    const ro = new ResizeObserver(() => {
-      try {
-        fitAddon.fit();
-      } catch {
-        // ignore
-      }
-    });
+    let fitRaf = 0;
+    const scheduleFit = () => {
+      if (fitRaf) cancelAnimationFrame(fitRaf);
+      fitRaf = requestAnimationFrame(() => {
+        fitRaf = 0;
+        try {
+          fitAddon.fit();
+        } catch {
+          // ignore
+        }
+      });
+    };
+
+    const ro = new ResizeObserver(() => scheduleFit());
     ro.observe(container);
+
+    const onWinResize = () => scheduleFit();
+    window.addEventListener("resize", onWinResize);
 
     const handleClick = () => onFocusRef.current?.();
     container.addEventListener("mousedown", handleClick);
 
     return () => {
       container.removeEventListener("mousedown", handleClick);
+      window.removeEventListener("resize", onWinResize);
+      if (fitRaf) cancelAnimationFrame(fitRaf);
       ro.disconnect();
       dataSub.dispose();
       resizeSub.dispose();
@@ -169,9 +192,29 @@ export function Terminal({
       if (spawned) {
         invoke("pty_kill", { id: ptyId }).catch(() => {});
       }
+      fitRef.current = null;
+      termRef.current = null;
       term.dispose();
     };
   }, [ptyId, waiting]);
+
+  useEffect(() => {
+    if (!termRef.current || !fitRef.current) return;
+    const raf1 = requestAnimationFrame(() => {
+      const raf2 = requestAnimationFrame(() => {
+        try {
+          fitRef.current?.fit();
+        } catch {
+          // ignore
+        }
+      });
+      (raf1 as any).next = raf2;
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      if ((raf1 as any).next) cancelAnimationFrame((raf1 as any).next);
+    };
+  }, [activeTabId]);
 
   return (
     <div className="terminal-wrap">

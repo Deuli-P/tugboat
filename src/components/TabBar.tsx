@@ -1,4 +1,5 @@
 import { useTabs } from "../state/tabs";
+import { useUI } from "../state/ui";
 import "./TabBar.css";
 
 export function TabBar() {
@@ -7,9 +8,21 @@ export function TabBar() {
   const setActiveTab = useTabs((s) => s.setActiveTab);
   const addTab = useTabs((s) => s.addTab);
   const closeTab = useTabs((s) => s.closeTab);
+  const sidebarCollapsed = useUI((s) => s.sidebarCollapsed);
+  const toggleSidebar = useUI((s) => s.toggleSidebar);
 
   return (
     <div className="tab-bar" data-tour="tab-bar">
+      {sidebarCollapsed && (
+        <button
+          className="tab-sidebar-show"
+          onClick={toggleSidebar}
+          title="Afficher la sidebar"
+          aria-label="Show sidebar"
+        >
+          ›
+        </button>
+      )}
       <div className="tab-list">
         {tabs.map((tab) => (
           <div

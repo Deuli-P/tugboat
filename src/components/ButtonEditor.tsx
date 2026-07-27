@@ -7,6 +7,7 @@ import {
   type ExtraPane,
 } from "../state/buttons";
 import { parseCommandLine, serializeCommandLine } from "../lib/shellParse";
+import { IconPicker } from "./IconPicker";
 import "./ButtonEditor.css";
 
 const NEW_GROUP_VALUE = "__new__";
@@ -41,6 +42,7 @@ function ButtonEditorInner({
 
   const [label, setLabel] = useState(existing?.label ?? "");
   const [icon, setIcon] = useState(existing?.icon ?? "");
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [commandLine, setCommandLine] = useState(() =>
     existing
       ? serializeCommandLine(existing.command, existing.args)
@@ -48,6 +50,9 @@ function ButtonEditorInner({
   );
   const [cwd, setCwd] = useState(existing?.cwd ?? "");
   const [openIn, setOpenIn] = useState<OpenIn>(existing?.openIn ?? "tab");
+  const [multiInstance, setMultiInstance] = useState<boolean>(
+    existing?.multiInstance === true,
+  );
 
   type UIExtraPane = {
     dir: "h" | "v";
@@ -155,6 +160,7 @@ function ButtonEditorInner({
       cwd: cwd.trim() || null,
       openIn,
       extraPanes: builtExtraPanes,
+      multiInstance,
     };
     if (isEdit) {
       updateButton(target.groupId, target.buttonId, payload);
@@ -202,16 +208,30 @@ function ButtonEditorInner({
 
         <div className="btn-editor-body">
           <div className="field-row">
-            <label className="field icon-field">
+            <div className="field icon-field">
               <span className="label">Icône</span>
-              <input
-                type="text"
-                value={icon ?? ""}
-                onChange={(e) => setIcon(e.target.value)}
-                placeholder="🚀"
-                maxLength={4}
-              />
-            </label>
+              <div className="icon-picker-row">
+                <button
+                  type="button"
+                  className="icon-preview-btn"
+                  onClick={() => setIconPickerOpen(true)}
+                  title="Choisir une icône"
+                >
+                  {icon ? (
+                    <span className="icon-preview">{icon}</span>
+                  ) : (
+                    <span className="icon-preview-empty">＋</span>
+                  )}
+                </button>
+                <input
+                  type="text"
+                  value={icon ?? ""}
+                  onChange={(e) => setIcon(e.target.value)}
+                  placeholder="🚀"
+                  maxLength={4}
+                />
+              </div>
+            </div>
             <label className="field grow">
               <span className="label">
                 Label <span className="required">*</span>
@@ -225,6 +245,16 @@ function ButtonEditorInner({
               />
             </label>
           </div>
+          {iconPickerOpen && (
+            <IconPicker
+              current={icon}
+              onPick={(emoji) => {
+                setIcon(emoji);
+                setIconPickerOpen(false);
+              }}
+              onClose={() => setIconPickerOpen(false)}
+            />
+          )}
 
           <div className="field">
             <span className="label">
@@ -294,6 +324,21 @@ function ButtonEditorInner({
                 </label>
               ))}
             </div>
+            {openIn === "tab" && (
+              <label className="checkbox-option">
+                <input
+                  type="checkbox"
+                  checked={multiInstance}
+                  onChange={(e) => setMultiInstance(e.target.checked)}
+                />
+                <span>
+                  Autoriser plusieurs onglets
+                  <span className="hint">
+                    Décoché : cliquer à nouveau active l'onglet existant.
+                  </span>
+                </span>
+              </label>
+            )}
           </div>
 
           <div className="field extra-panes">

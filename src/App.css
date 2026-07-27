@@ -1,3 +1,16 @@
+:root {
+  --bg: #1a1b26;
+  --panel-bg: #1a1b26;
+  --sidebar-bg: #15161e;
+  --tabbar-bg: #15161e;
+  --text: #c0caf5;
+  --muted: #565f89;
+  --border: #24283b;
+  --accent: #7aa2f7;
+  --terminal-bg: #1a1b26;
+  --input-bg: #15161e;
+}
+
 html,
 body,
 #root {
@@ -6,8 +19,8 @@ body,
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #1a1b26;
-  color: #c0caf5;
+  background: var(--bg);
+  color: var(--text);
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -32,7 +45,7 @@ body,
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: #1a1b26;
+  background: var(--bg);
   position: relative;
 }
 

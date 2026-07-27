@@ -72,11 +72,26 @@ export async function launchButton(button: ButtonCfg) {
   const state = useTabs.getState();
 
   if (button.openIn === "tab") {
-    state.addTab({ title: button.label, spawn: rootSpawn });
+    if (!button.multiInstance) {
+      const existing = state.tabs.find((t) => t.buttonId === button.id);
+      if (existing) {
+        state.setActiveTab(existing.id);
+        return;
+      }
+    }
+    state.addTab({
+      title: button.label,
+      spawn: rootSpawn,
+      buttonId: button.id,
+    });
   } else {
     const tab = state.tabs.find((t) => t.id === state.activeTabId);
     if (!tab) {
-      state.addTab({ title: button.label, spawn: rootSpawn });
+      state.addTab({
+        title: button.label,
+        spawn: rootSpawn,
+        buttonId: button.id,
+      });
     } else {
       const dir = button.openIn === "split-h" ? "h" : "v";
       state.splitPane(tab.id, tab.activeLeafId, dir, rootSpawn);

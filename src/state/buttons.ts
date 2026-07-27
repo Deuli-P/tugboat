@@ -22,6 +22,7 @@ export type ButtonCfg = {
   cwd?: string | null;
   openIn: OpenIn;
   extraPanes?: ExtraPane[];
+  multiInstance?: boolean;
 };
 
 export type GroupCfg = {

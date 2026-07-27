@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 import { Terminal } from "./Terminal";
-import { useTabs, type PaneNode, type Tab } from "../state/tabs";
+import { useTabs, findLeaves, type PaneNode, type Tab } from "../state/tabs";
 import "./SplitContainer.css";
 
 type Props = {
@@ -11,9 +11,11 @@ type Props = {
 export function SplitContainer({ tab, node }: Props) {
   const setActiveLeaf = useTabs((s) => s.setActiveLeaf);
   const setRatio = useTabs((s) => s.setRatio);
+  const closePane = useTabs((s) => s.closePane);
 
   if (node.kind === "leaf") {
     const isActive = tab.activeLeafId === node.id;
+    const hasMultiplePanes = findLeaves(tab.root).length > 1;
     return (
       <div
         className={`pane-leaf ${isActive ? "active" : ""}`}
@@ -27,6 +29,20 @@ export function SplitContainer({ tab, node }: Props) {
           waiting={node.waiting ?? null}
           onFocus={() => setActiveLeaf(tab.id, node.id)}
         />
+        {hasMultiplePanes && (
+          <button
+            className="pane-close"
+            title="Fermer ce panel (⌘W)"
+            aria-label="Close pane"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              closePane(tab.id, node.id);
+            }}
+          >
+            ×
+          </button>
+        )}
       </div>
     );
   }

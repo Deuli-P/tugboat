@@ -1,8 +1,8 @@
 .tab-bar {
   display: flex;
   align-items: stretch;
-  background: #15161e;
-  border-bottom: 1px solid #24283b;
+  background: var(--tabbar-bg, #15161e);
+  border-bottom: 1px solid var(--border, #24283b);
   height: 34px;
   flex-shrink: 0;
   user-select: none;
@@ -95,5 +95,21 @@
 }
 
 .tab-add:hover {
+  background: #1f2033;
+}
+
+.tab-sidebar-show {
+  width: 30px;
+  background: transparent;
+  border: none;
+  color: #7aa2f7;
+  font-size: 18px;
+  cursor: pointer;
+  border-right: 1px solid #24283b;
+  flex-shrink: 0;
+  transition: background 0.1s ease;
+}
+
+.tab-sidebar-show:hover {
   background: #1f2033;
 }

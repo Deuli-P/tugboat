@@ -1,0 +1,166 @@
+.icon-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.icon-picker {
+  width: 100%;
+  max-width: 480px;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg, #1a1b26);
+  color: var(--text, #c0caf5);
+  border: 1px solid var(--border, #24283b);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.icon-picker-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #24283b);
+}
+
+.icon-picker-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--accent, #7aa2f7);
+}
+
+.icon-picker-close {
+  background: transparent;
+  border: none;
+  color: var(--muted, #565f89);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.icon-picker-close:hover {
+  color: var(--text, #c0caf5);
+}
+
+.icon-picker-search {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #24283b);
+}
+
+.icon-picker-search input {
+  flex: 1;
+  background: var(--input-bg, #15161e);
+  border: 1px solid var(--border, #24283b);
+  color: var(--text, #c0caf5);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.icon-picker-search input:focus {
+  outline: none;
+  border-color: var(--accent, #7aa2f7);
+}
+
+.icon-picker-clear {
+  background: transparent;
+  border: 1px solid var(--border, #414868);
+  color: var(--muted, #565f89);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.icon-picker-clear:hover {
+  color: #f7768e;
+  border-color: #f7768e;
+}
+
+.icon-picker-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 0 10px;
+  overflow-x: auto;
+}
+
+.icon-picker-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted, #565f89);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.icon-picker-tab:hover {
+  color: var(--text, #c0caf5);
+}
+
+.icon-picker-tab.active {
+  background: var(--input-bg, #15161e);
+  border-color: var(--border, #24283b);
+  color: var(--accent, #7aa2f7);
+}
+
+.icon-picker-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 4px;
+  padding: 10px 12px;
+  min-height: 0;
+}
+
+.icon-picker-cell {
+  background: transparent;
+  border: 1px solid transparent;
+  color: inherit;
+  font-size: 20px;
+  height: 40px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.icon-picker-cell:hover {
+  background: var(--input-bg, #15161e);
+  border-color: var(--accent, #7aa2f7);
+}
+
+.icon-picker-cell.selected {
+  border-color: var(--accent, #7aa2f7);
+  background: rgba(122, 162, 247, 0.15);
+}
+
+.icon-picker-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--muted, #565f89);
+  padding: 20px;
+  font-size: 12px;
+}
+
+.icon-picker-hint {
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--border, #24283b);
+  color: var(--muted, #565f89);
+  font-size: 11px;
+}
