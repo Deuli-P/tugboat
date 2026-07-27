@@ -1,0 +1,187 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "src-tauri/tauri.conf.json"
+      - "src-tauri/Cargo.toml"
+  workflow_dispatch:
+
+jobs:
+  detect-bump:
+    name: Detect version bump
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - id: check
+        name: Compare versions with previous commit
+        run: |
+          set -e
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            OLD_VERSION=$(git show HEAD~1:package.json 2>/dev/null | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).version' 2>/dev/null || echo "")
+          else
+            OLD_VERSION=""
+          fi
+          echo "Old: $OLD_VERSION"
+          echo "New: $NEW_VERSION"
+          if [ "$NEW_VERSION" != "$OLD_VERSION" ] && [ -n "$NEW_VERSION" ]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+            echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+            echo "✅ Version changed → release will run"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "⏭  No version bump → skipping release"
+          fi
+
+  release:
+    name: Build & Release
+    needs: detect-bump
+    if: needs.detect-bump.outputs.should_release == 'true'
+    runs-on: macos-14
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.detect-bump.outputs.version }}
+      RELEASES_REPO: Deuli-P/tugboat-releases
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
+      CARGO_TERM_PROGRESS_WHEN: never
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanity check secrets
+        run: |
+          if [ -z "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" ]; then
+            echo "❌ Missing secret TAURI_SIGNING_PRIVATE_KEY"; exit 1
+          fi
+          if [ -z "${{ secrets.RELEASES_TOKEN }}" ]; then
+            echo "❌ Missing secret RELEASES_TOKEN (PAT with contents:write on $RELEASES_REPO)"; exit 1
+          fi
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Rust (stable, aarch64-apple-darwin)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install JS deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify version consistency
+        run: |
+          set -e
+          PKG_V=$(node -p "require('./package.json').version")
+          CONF_V=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          CARGO_V=$(awk -F'"' '/^version = /{print $2; exit}' src-tauri/Cargo.toml)
+          echo "package.json: $PKG_V"
+          echo "tauri.conf.json: $CONF_V"
+          echo "Cargo.toml: $CARGO_V"
+          if [ "$PKG_V" != "$CONF_V" ] || [ "$PKG_V" != "$CARGO_V" ]; then
+            echo "❌ Version mismatch. Bump all three files together (use scripts/release.sh locally, then push)."
+            exit 1
+          fi
+
+      - name: Build signed Tauri bundle
+        run: pnpm tauri build --target aarch64-apple-darwin
+
+      - name: Locate artifacts
+        id: artifacts
+        run: |
+          set -e
+          APP_TAR="src-tauri/target/aarch64-apple-darwin/release/bundle/macos/tugboat.app.tar.gz"
+          APP_SIG="src-tauri/target/aarch64-apple-darwin/release/bundle/macos/tugboat.app.tar.gz.sig"
+          if [ ! -f "$APP_TAR" ] || [ ! -f "$APP_SIG" ]; then
+            echo "❌ Updater artifacts not found. Verify tauri.conf.json → bundle.createUpdaterArtifacts = true"
+            find src-tauri/target -name "*.tar.gz*" -maxdepth 8 || true
+            exit 1
+          fi
+          echo "app_tar=$APP_TAR" >> "$GITHUB_OUTPUT"
+          echo "app_sig=$APP_SIG" >> "$GITHUB_OUTPUT"
+
+      - name: Generate latest.json
+        run: |
+          set -e
+          SIGNATURE=$(cat "${{ steps.artifacts.outputs.app_sig }}")
+          PUB_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          DOWNLOAD_URL="https://github.com/${RELEASES_REPO}/releases/download/v${VERSION}/tugboat_${VERSION}_aarch64.app.tar.gz"
+          NOTES=$(git log -1 --pretty=%s)
+          cat > /tmp/latest.json <<EOF
+          {
+            "version": "${VERSION}",
+            "notes": "${NOTES//\"/\\\"}",
+            "pub_date": "${PUB_DATE}",
+            "platforms": {
+              "darwin-aarch64": {
+                "signature": "${SIGNATURE}",
+                "url": "${DOWNLOAD_URL}"
+              }
+            }
+          }
+          EOF
+          cp "${{ steps.artifacts.outputs.app_tar }}" "/tmp/tugboat_${VERSION}_aarch64.app.tar.gz"
+          echo "── latest.json ──"
+          cat /tmp/latest.json
+
+      - name: Publish release to ${{ env.RELEASES_REPO }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+        run: |
+          set -e
+          VERSIONED_TAR="/tmp/tugboat_${VERSION}_aarch64.app.tar.gz"
+          LATEST_JSON="/tmp/latest.json"
+          if gh release view "v${VERSION}" --repo "$RELEASES_REPO" >/dev/null 2>&1; then
+            echo "Release v${VERSION} already exists — replacing assets"
+            gh release upload "v${VERSION}" \
+              --repo "$RELEASES_REPO" \
+              --clobber \
+              "$VERSIONED_TAR" "$LATEST_JSON"
+          else
+            gh release create "v${VERSION}" \
+              --repo "$RELEASES_REPO" \
+              --title "v${VERSION}" \
+              --notes "Tugboat v${VERSION}" \
+              "$VERSIONED_TAR" "$LATEST_JSON"
+          fi
+
+      - name: Tag main repo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists locally, skipping."
+          else
+            git tag "v${VERSION}"
+            git push origin "v${VERSION}"
+          fi
