@@ -235,19 +235,21 @@ export function Sidebar() {
                     }));
                     const paneCount = 1 + extraPanes.length;
                     const multiInstance = btn?.multiInstance === true;
-                    const arrow =
+                    const openInLabel =
                       openIn === "tab"
-                        ? "⇥"
+                        ? "onglet"
                         : openIn === "split-h"
-                          ? "⇔"
-                          : "⇕";
+                          ? "split →"
+                          : "split ↓";
                     return (
                       <button
                         key={btnId}
                         className="launcher-btn"
                         title={`${command} ${args.join(" ")}${
                           cwd ? ` (in ${cwd})` : ""
-                        }${paneCount > 1 ? ` · ${paneCount} panels` : ""}${
+                        } · ${openInLabel}${
+                          paneCount > 1 ? ` · ${paneCount} panels` : ""
+                        }${
                           openIn === "tab" && !multiInstance
                             ? " · onglet unique"
                             : ""
@@ -276,7 +278,6 @@ export function Sidebar() {
                         {paneCount > 1 && (
                           <span className="btn-pane-count">{paneCount}</span>
                         )}
-                        <span className={`btn-open-in ${openIn}`}>{arrow}</span>
                       </button>
                     );
                   })}

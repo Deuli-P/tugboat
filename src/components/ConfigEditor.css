@@ -16,8 +16,9 @@
   max-width: 900px;
   height: 100%;
   max-height: 700px;
-  background: #1a1b26;
-  border: 1px solid #414868;
+  background: var(--panel-bg, #1a1b26);
+  color: var(--text, #c0caf5);
+  border: 1px solid var(--border, #414868);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -30,19 +31,19 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  border-bottom: 1px solid #24283b;
-  background: #15161e;
+  border-bottom: 1px solid var(--border, #24283b);
+  background: var(--sidebar-bg, #15161e);
   flex-shrink: 0;
 }
 
 .config-title {
-  color: #7aa2f7;
+  color: var(--accent, #7aa2f7);
   font-weight: 600;
   font-size: 13px;
 }
 
 .config-path {
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 11px;
   flex: 1;
   overflow: hidden;
@@ -54,7 +55,7 @@
 .config-close {
   background: transparent;
   border: none;
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
@@ -64,16 +65,16 @@
 }
 
 .config-close:hover {
-  color: #c0caf5;
-  background: #414868;
+  color: var(--text, #c0caf5);
+  background: var(--border, #414868);
 }
 
 .config-textarea {
   flex: 1;
   min-height: 0;
   border: none;
-  background: #1a1b26;
-  color: #c0caf5;
+  background: var(--input-bg, #1a1b26);
+  color: var(--text, #c0caf5);
   font-family: Menlo, "SF Mono", Monaco, "Liberation Mono", monospace;
   font-size: 13px;
   line-height: 1.5;
@@ -94,7 +95,7 @@
 }
 
 .config-textarea::selection {
-  background: #364a82;
+  background: rgba(122, 162, 247, 0.35);
 }
 
 .config-footer {
@@ -102,8 +103,8 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: #15161e;
-  border-top: 1px solid #24283b;
+  background: var(--sidebar-bg, #15161e);
+  border-top: 1px solid var(--border, #24283b);
   flex-shrink: 0;
 }
 
@@ -129,7 +130,7 @@
 }
 
 .config-clean {
-  color: #565f89;
+  color: var(--muted, #565f89);
 }
 
 .config-actions {
@@ -144,32 +145,32 @@
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: background 0.1s ease, border-color 0.1s ease;
+  transition: background 0.1s ease, border-color 0.1s ease, filter 0.1s ease;
 }
 
 .config-btn.secondary {
   background: transparent;
-  color: #a9b1d6;
-  border-color: #414868;
+  color: var(--text, #a9b1d6);
+  border-color: var(--border, #414868);
 }
 
 .config-btn.secondary:hover {
-  background: #24283b;
-  color: #c0caf5;
+  background: var(--border, #24283b);
+  color: var(--text, #c0caf5);
 }
 
 .config-btn.primary {
-  background: #7aa2f7;
-  color: #15161e;
+  background: var(--accent, #7aa2f7);
+  color: var(--sidebar-bg, #15161e);
   font-weight: 600;
 }
 
 .config-btn.primary:hover:not(:disabled) {
-  background: #9abbff;
+  filter: brightness(1.1);
 }
 
 .config-btn.primary:disabled {
-  background: #414868;
-  color: #565f89;
+  background: var(--border, #414868);
+  color: var(--muted, #565f89);
   cursor: not-allowed;
 }

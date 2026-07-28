@@ -15,8 +15,9 @@
   width: 100%;
   max-width: 560px;
   max-height: 100%;
-  background: #1a1b26;
-  border: 1px solid #414868;
+  background: var(--panel-bg, #1a1b26);
+  color: var(--text, #c0caf5);
+  border: 1px solid var(--border, #414868);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -28,13 +29,13 @@
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  background: #15161e;
-  border-bottom: 1px solid #24283b;
+  background: var(--sidebar-bg, #15161e);
+  border-bottom: 1px solid var(--border, #24283b);
 }
 
 .btn-editor-title {
   flex: 1;
-  color: #7aa2f7;
+  color: var(--accent, #7aa2f7);
   font-weight: 600;
   font-size: 14px;
 }
@@ -42,7 +43,7 @@
 .btn-editor-close {
   background: transparent;
   border: none;
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
@@ -52,8 +53,8 @@
 }
 
 .btn-editor-close:hover {
-  color: #c0caf5;
-  background: #414868;
+  color: var(--text, #c0caf5);
+  background: var(--border, #414868);
 }
 
 .btn-editor-body {
@@ -72,7 +73,7 @@
 
 .field .label {
   font-size: 11px;
-  color: #a9b1d6;
+  color: var(--text, #a9b1d6);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -90,11 +91,11 @@
 
 .field input[type="text"],
 .field select {
-  background: #15161e;
-  border: 1px solid #24283b;
+  background: var(--input-bg, #15161e);
+  border: 1px solid var(--border, #24283b);
   border-radius: 4px;
   padding: 8px 10px;
-  color: #c0caf5;
+  color: var(--text, #c0caf5);
   font-size: 13px;
   outline: none;
   font-family: inherit;
@@ -104,7 +105,7 @@
 
 .field input[type="text"]:focus,
 .field select:focus {
-  border-color: #7aa2f7;
+  border-color: var(--accent, #7aa2f7);
 }
 
 .field input.mono {
@@ -132,9 +133,9 @@
   width: 38px;
   height: 38px;
   border-radius: 6px;
-  background: #15161e;
-  border: 1px dashed #414868;
-  color: #565f89;
+  background: var(--input-bg, #15161e);
+  border: 1px dashed var(--border, #414868);
+  color: var(--muted, #565f89);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -145,8 +146,8 @@
 }
 
 .icon-preview-btn:hover {
-  border-color: #7aa2f7;
-  color: #7aa2f7;
+  border-color: var(--accent, #7aa2f7);
+  color: var(--accent, #7aa2f7);
 }
 
 .icon-preview {
@@ -165,28 +166,28 @@
   align-items: flex-start;
   padding: 8px 10px;
   margin-top: 8px;
-  border: 1px solid #24283b;
+  border: 1px solid var(--border, #24283b);
   border-radius: 4px;
-  background: #15161e;
+  background: var(--input-bg, #15161e);
   cursor: pointer;
   font-size: 12px;
-  color: #a9b1d6;
+  color: var(--text, #a9b1d6);
   transition: border-color 0.1s ease;
 }
 
 .checkbox-option:hover {
-  border-color: #414868;
+  border-color: var(--muted, #414868);
 }
 
 .checkbox-option input[type="checkbox"] {
   margin: 2px 0 0 0;
-  accent-color: #7aa2f7;
+  accent-color: var(--accent, #7aa2f7);
   cursor: pointer;
 }
 
 .checkbox-option .hint {
   display: block;
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 11px;
   margin-top: 2px;
 }
@@ -198,27 +199,27 @@
 .parse-preview {
   margin-top: 6px;
   padding: 6px 8px;
-  background: #15161e;
-  border: 1px dashed #414868;
+  background: var(--input-bg, #15161e);
+  border: 1px dashed var(--border, #414868);
   border-radius: 4px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: #a9b1d6;
+  color: var(--text, #a9b1d6);
 }
 
 .parse-preview-label {
-  color: #565f89;
+  color: var(--muted, #565f89);
   margin-right: 4px;
   font-weight: 500;
 }
 
 .parse-preview code {
   font-family: Menlo, "SF Mono", monospace;
-  color: #7aa2f7;
-  background: #24283b;
+  color: var(--accent, #7aa2f7);
+  background: var(--border, #24283b);
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 11px;
@@ -233,10 +234,10 @@
 }
 
 .extra-pane {
-  border: 1px solid #24283b;
+  border: 1px solid var(--border, #24283b);
   border-radius: 6px;
   padding: 10px;
-  background: #15161e;
+  background: var(--input-bg, #15161e);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -250,12 +251,12 @@
 
 .extra-pane-num {
   font-size: 11px;
-  color: #7aa2f7;
+  color: var(--accent, #7aa2f7);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-right: 6px;
-  border-right: 1px solid #24283b;
+  border-right: 1px solid var(--border, #24283b);
 }
 
 .dir-toggle {
@@ -267,8 +268,8 @@
 .dir-btn {
   flex: 1;
   background: transparent;
-  border: 1px solid #24283b;
-  color: #a9b1d6;
+  border: 1px solid var(--border, #24283b);
+  color: var(--text, #a9b1d6);
   padding: 4px 8px;
   border-radius: 3px;
   font-size: 11px;
@@ -278,13 +279,13 @@
 }
 
 .dir-btn:hover {
-  border-color: #414868;
+  border-color: var(--muted, #414868);
 }
 
 .dir-btn.checked {
-  border-color: #7aa2f7;
-  background: #1f2033;
-  color: #7aa2f7;
+  border-color: var(--accent, #7aa2f7);
+  background: rgba(122, 162, 247, 0.1);
+  color: var(--accent, #7aa2f7);
   font-weight: 600;
 }
 
@@ -305,18 +306,18 @@
 
 .label-tiny {
   font-size: 10px;
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
 
 .timing-field input {
-  background: #1a1b26;
-  border: 1px solid #24283b;
+  background: var(--panel-bg, #1a1b26);
+  border: 1px solid var(--border, #24283b);
   border-radius: 3px;
   padding: 5px 8px;
-  color: #c0caf5;
+  color: var(--text, #c0caf5);
   font-size: 12px;
   outline: none;
   transition: border-color 0.1s ease;
@@ -324,7 +325,7 @@
 }
 
 .timing-field input:focus {
-  border-color: #7aa2f7;
+  border-color: var(--accent, #7aa2f7);
 }
 
 .timing-field input[type="number"] {
@@ -343,9 +344,9 @@
 
 .mini-btn {
   padding: 4px 10px;
-  background: #24283b;
-  border: 1px solid #414868;
-  color: #a9b1d6;
+  background: var(--border, #24283b);
+  border: 1px solid var(--muted, #414868);
+  color: var(--text, #a9b1d6);
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
@@ -353,8 +354,8 @@
 }
 
 .mini-btn:hover {
-  background: #414868;
-  color: #c0caf5;
+  background: var(--muted, #414868);
+  color: var(--text, #c0caf5);
 }
 
 .mini-btn.danger {
@@ -367,7 +368,7 @@
 
 .mini-btn.danger:hover {
   background: #f7768e;
-  color: #15161e;
+  color: var(--sidebar-bg, #15161e);
 }
 
 .radio-group {
@@ -381,23 +382,23 @@
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
-  border: 1px solid #24283b;
+  border: 1px solid var(--border, #24283b);
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  color: #a9b1d6;
-  background: #15161e;
+  color: var(--text, #a9b1d6);
+  background: var(--input-bg, #15161e);
   transition: border-color 0.1s ease, background 0.1s ease;
 }
 
 .radio-option:hover {
-  border-color: #414868;
+  border-color: var(--muted, #414868);
 }
 
 .radio-option.checked {
-  border-color: #7aa2f7;
-  background: #1f2033;
-  color: #c0caf5;
+  border-color: var(--accent, #7aa2f7);
+  background: rgba(122, 162, 247, 0.1);
+  color: var(--text, #c0caf5);
 }
 
 .radio-option input {
@@ -406,7 +407,7 @@
 
 .radio-option .glyph {
   font-weight: 700;
-  color: #7aa2f7;
+  color: var(--accent, #7aa2f7);
 }
 
 .btn-editor-footer {
@@ -414,8 +415,8 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: #15161e;
-  border-top: 1px solid #24283b;
+  background: var(--sidebar-bg, #15161e);
+  border-top: 1px solid var(--border, #24283b);
 }
 
 .btn-editor-footer .spacer {
@@ -429,33 +430,33 @@
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: background 0.1s ease;
+  transition: background 0.1s ease, filter 0.1s ease;
 }
 
 .btn-editor-btn.secondary {
   background: transparent;
-  color: #a9b1d6;
-  border-color: #414868;
+  color: var(--text, #a9b1d6);
+  border-color: var(--border, #414868);
 }
 
 .btn-editor-btn.secondary:hover {
-  background: #24283b;
-  color: #c0caf5;
+  background: var(--border, #24283b);
+  color: var(--text, #c0caf5);
 }
 
 .btn-editor-btn.primary {
-  background: #7aa2f7;
-  color: #15161e;
+  background: var(--accent, #7aa2f7);
+  color: var(--sidebar-bg, #15161e);
   font-weight: 600;
 }
 
 .btn-editor-btn.primary:hover:not(:disabled) {
-  background: #9abbff;
+  filter: brightness(1.1);
 }
 
 .btn-editor-btn.primary:disabled {
-  background: #414868;
-  color: #565f89;
+  background: var(--border, #414868);
+  color: var(--muted, #565f89);
   cursor: not-allowed;
 }
 
@@ -467,5 +468,5 @@
 
 .btn-editor-btn.danger:hover {
   background: #f7768e;
-  color: #15161e;
+  color: var(--sidebar-bg, #15161e);
 }

@@ -29,22 +29,22 @@
   max-width: 220px;
   height: 100%;
   cursor: pointer;
-  color: #a9b1d6;
+  color: var(--text, #a9b1d6);
   font-size: 12px;
-  border-right: 1px solid #24283b;
+  border-right: 1px solid var(--border, #24283b);
   background: transparent;
   position: relative;
   transition: background 0.1s ease;
 }
 
 .tab:hover {
-  background: #1f2033;
-  color: #c0caf5;
+  background: var(--panel-bg, #1f2033);
+  color: var(--text, #c0caf5);
 }
 
 .tab.active {
-  background: #1a1b26;
-  color: #c0caf5;
+  background: var(--bg, #1a1b26);
+  color: var(--text, #c0caf5);
 }
 
 .tab.active::after {
@@ -54,7 +54,7 @@
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: #7aa2f7;
+  background: var(--accent, #7aa2f7);
 }
 
 .tab-title {
@@ -67,7 +67,7 @@
 .tab-close {
   background: transparent;
   border: none;
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
@@ -79,37 +79,37 @@
 }
 
 .tab-close:hover {
-  color: #c0caf5;
-  background: #414868;
+  color: var(--text, #c0caf5);
+  background: var(--border, #414868);
 }
 
 .tab-add {
   width: 34px;
   background: transparent;
   border: none;
-  color: #7aa2f7;
+  color: var(--accent, #7aa2f7);
   font-size: 18px;
   cursor: pointer;
-  border-left: 1px solid #24283b;
+  border-left: 1px solid var(--border, #24283b);
   transition: background 0.1s ease;
 }
 
 .tab-add:hover {
-  background: #1f2033;
+  background: var(--panel-bg, #1f2033);
 }
 
 .tab-sidebar-show {
   width: 30px;
   background: transparent;
   border: none;
-  color: #7aa2f7;
+  color: var(--accent, #7aa2f7);
   font-size: 18px;
   cursor: pointer;
-  border-right: 1px solid #24283b;
+  border-right: 1px solid var(--border, #24283b);
   flex-shrink: 0;
   transition: background 0.1s ease;
 }
 
 .tab-sidebar-show:hover {
-  background: #1f2033;
+  background: var(--panel-bg, #1f2033);
 }

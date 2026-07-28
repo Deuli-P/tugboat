@@ -16,8 +16,9 @@
 .palette {
   width: 100%;
   max-width: 640px;
-  background: #1a1b26;
-  border: 1px solid #414868;
+  background: var(--panel-bg, #1a1b26);
+  color: var(--text, #c0caf5);
+  border: 1px solid var(--border, #414868);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
@@ -31,15 +32,15 @@
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border-bottom: 1px solid #24283b;
-  background: #15161e;
+  border-bottom: 1px solid var(--border, #24283b);
+  background: var(--sidebar-bg, #15161e);
 }
 
 .palette-icon {
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 11px;
   font-weight: 600;
-  background: #24283b;
+  background: var(--border, #24283b);
   padding: 3px 6px;
   border-radius: 3px;
   font-family: Menlo, "SF Mono", monospace;
@@ -50,13 +51,13 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #c0caf5;
+  color: var(--text, #c0caf5);
   font-size: 14px;
   font-family: inherit;
 }
 
 .palette-search input::placeholder {
-  color: #565f89;
+  color: var(--muted, #565f89);
 }
 
 .palette-list {
@@ -76,7 +77,7 @@
 }
 
 .palette-item.active {
-  background: #364a82;
+  background: rgba(122, 162, 247, 0.22);
 }
 
 .pi-icon {
@@ -95,7 +96,7 @@
 }
 
 .pi-label {
-  color: #c0caf5;
+  color: var(--text, #c0caf5);
   font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -103,7 +104,7 @@
 }
 
 .pi-sub {
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -112,11 +113,11 @@
 }
 
 .palette-item.active .pi-sub {
-  color: #a9b1d6;
+  color: var(--text, #a9b1d6);
 }
 
 .pi-arrow {
-  color: #7aa2f7;
+  color: var(--accent, #7aa2f7);
   font-size: 15px;
   font-weight: 700;
   padding-left: 8px;
@@ -126,7 +127,7 @@
 .palette-empty {
   padding: 20px;
   text-align: center;
-  color: #565f89;
+  color: var(--muted, #565f89);
   font-size: 12px;
 }
 
@@ -134,20 +135,20 @@
   display: flex;
   gap: 14px;
   padding: 8px 14px;
-  background: #15161e;
-  border-top: 1px solid #24283b;
-  color: #565f89;
+  background: var(--sidebar-bg, #15161e);
+  border-top: 1px solid var(--border, #24283b);
+  color: var(--muted, #565f89);
   font-size: 11px;
 }
 
 .palette-footer kbd {
   display: inline-block;
-  background: #24283b;
-  border: 1px solid #414868;
+  background: var(--border, #24283b);
+  border: 1px solid var(--muted, #414868);
   border-radius: 3px;
   padding: 1px 4px;
   font-family: Menlo, "SF Mono", monospace;
   font-size: 10px;
-  color: #a9b1d6;
+  color: var(--text, #a9b1d6);
   margin: 0 2px;
 }

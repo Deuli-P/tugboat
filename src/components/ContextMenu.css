@@ -2,8 +2,9 @@
   position: fixed;
   z-index: 200;
   min-width: 180px;
-  background: #1a1b26;
-  border: 1px solid #414868;
+  background: var(--panel-bg, #1a1b26);
+  color: var(--text, #c0caf5);
+  border: 1px solid var(--border, #414868);
   border-radius: 6px;
   padding: 4px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
@@ -15,7 +16,7 @@
 .context-item {
   background: transparent;
   border: none;
-  color: #c0caf5;
+  color: var(--text, #c0caf5);
   padding: 7px 12px;
   text-align: left;
   cursor: pointer;
@@ -26,8 +27,8 @@
 }
 
 .context-item:hover {
-  background: #7aa2f7;
-  color: #15161e;
+  background: var(--accent, #7aa2f7);
+  color: var(--sidebar-bg, #15161e);
 }
 
 .context-item.danger {
@@ -36,11 +37,11 @@
 
 .context-item.danger:hover {
   background: #f7768e;
-  color: #15161e;
+  color: var(--sidebar-bg, #15161e);
 }
 
 .context-separator {
   height: 1px;
-  background: #24283b;
+  background: var(--border, #24283b);
   margin: 4px 6px;
 }

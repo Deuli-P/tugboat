@@ -1,13 +1,77 @@
 import { useEffect, useRef } from "react";
-import { Terminal as XTerm } from "@xterm/xterm";
+import { Terminal as XTerm, type ITheme } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { openUrl, openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useTabs } from "../state/tabs";
+import { useUI } from "../state/ui";
 import "@xterm/xterm/css/xterm.css";
 import "./Terminal.css";
+
+function resolveThemeMode(mode: "light" | "dark" | "system"): "light" | "dark" {
+  if (mode === "system") {
+    return window.matchMedia("(prefers-color-scheme: light)").matches
+      ? "light"
+      : "dark";
+  }
+  return mode;
+}
+
+function readCssVar(name: string, fallback: string): string {
+  const v = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  return v || fallback;
+}
+
+function buildXtermTheme(resolved: "light" | "dark"): ITheme {
+  if (resolved === "light") {
+    return {
+      background: readCssVar("--terminal-bg", "#ffffff"),
+      foreground: readCssVar("--text", "#1a1b26"),
+      cursor: readCssVar("--text", "#1a1b26"),
+      black: "#0f0f14",
+      red: "#c14a4a",
+      green: "#4c8a3f",
+      yellow: "#a67e00",
+      blue: "#3b7dd8",
+      magenta: "#8a5cf6",
+      cyan: "#137a89",
+      white: "#3d3d3d",
+      brightBlack: "#5a5a5a",
+      brightRed: "#c14a4a",
+      brightGreen: "#4c8a3f",
+      brightYellow: "#a67e00",
+      brightBlue: "#3b7dd8",
+      brightMagenta: "#8a5cf6",
+      brightCyan: "#137a89",
+      brightWhite: "#1a1b26",
+    };
+  }
+  return {
+    background: readCssVar("--terminal-bg", "#1a1b26"),
+    foreground: readCssVar("--text", "#c0caf5"),
+    cursor: readCssVar("--text", "#c0caf5"),
+    black: "#15161e",
+    red: "#f7768e",
+    green: "#9ece6a",
+    yellow: "#e0af68",
+    blue: "#7aa2f7",
+    magenta: "#bb9af7",
+    cyan: "#7dcfff",
+    white: "#a9b1d6",
+    brightBlack: "#414868",
+    brightRed: "#f7768e",
+    brightGreen: "#9ece6a",
+    brightYellow: "#e0af68",
+    brightBlue: "#7aa2f7",
+    brightMagenta: "#bb9af7",
+    brightCyan: "#7dcfff",
+    brightWhite: "#c0caf5",
+  };
+}
 
 async function handleLinkClick(uri: string) {
   try {
@@ -68,12 +132,14 @@ export function Terminal({
   const fitRef = useRef<FitAddon | null>(null);
   const termRef = useRef<XTerm | null>(null);
   const activeTabId = useTabs((s) => s.activeTabId);
+  const themeMode = useUI((s) => s.themeMode);
 
   useEffect(() => {
     if (waiting) return;
     const container = containerRef.current;
     if (!container) return;
 
+    const initialResolved = resolveThemeMode(themeMode);
     const term = new XTerm({
       fontFamily:
         'Menlo, "SF Mono", Monaco, Consolas, "Liberation Mono", monospace',
@@ -81,27 +147,7 @@ export function Terminal({
       cursorBlink: true,
       allowProposedApi: true,
       scrollback: 5000,
-      theme: {
-        background: "#1a1b26",
-        foreground: "#c0caf5",
-        cursor: "#c0caf5",
-        black: "#15161e",
-        red: "#f7768e",
-        green: "#9ece6a",
-        yellow: "#e0af68",
-        blue: "#7aa2f7",
-        magenta: "#bb9af7",
-        cyan: "#7dcfff",
-        white: "#a9b1d6",
-        brightBlack: "#414868",
-        brightRed: "#f7768e",
-        brightGreen: "#9ece6a",
-        brightYellow: "#e0af68",
-        brightBlue: "#7aa2f7",
-        brightMagenta: "#bb9af7",
-        brightCyan: "#7dcfff",
-        brightWhite: "#c0caf5",
-      },
+      theme: buildXtermTheme(initialResolved),
     });
 
     const fitAddon = new FitAddon();
@@ -215,6 +261,20 @@ export function Terminal({
       if ((raf1 as any).next) cancelAnimationFrame((raf1 as any).next);
     };
   }, [activeTabId]);
+
+  useEffect(() => {
+    if (!termRef.current) return;
+    const apply = () => {
+      if (!termRef.current) return;
+      const resolved = resolveThemeMode(themeMode);
+      termRef.current.options.theme = buildXtermTheme(resolved);
+    };
+    apply();
+    if (themeMode !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [themeMode]);
 
   return (
     <div className="terminal-wrap">
