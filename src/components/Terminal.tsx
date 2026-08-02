@@ -147,7 +147,24 @@ export function Terminal({
       cursorBlink: true,
       allowProposedApi: true,
       scrollback: 5000,
+      macOptionIsMeta: true,
       theme: buildXtermTheme(initialResolved),
+    });
+
+    term.attachCustomKeyEventHandler((event) => {
+      if (
+        event.key === "Enter" &&
+        event.shiftKey &&
+        !event.altKey &&
+        !event.metaKey &&
+        !event.ctrlKey
+      ) {
+        if (event.type === "keydown") {
+          invoke("pty_write", { id: ptyId, data: "\x1b\r" }).catch(() => {});
+        }
+        return false;
+      }
+      return true;
     });
 
     const fitAddon = new FitAddon();
