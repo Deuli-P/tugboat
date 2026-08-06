@@ -152,6 +152,7 @@ export function Terminal({
     });
 
     term.attachCustomKeyEventHandler((event) => {
+      // Shift+Enter → newline dans le prompt (ne pas soumettre)
       if (
         event.key === "Enter" &&
         event.shiftKey &&
@@ -164,6 +165,41 @@ export function Terminal({
         }
         return false;
       }
+
+      // Cmd+C → copie la sélection (jamais SIGINT)
+      if (event.metaKey && event.key === "c" && !event.ctrlKey) {
+        if (event.type === "keydown") {
+          const selection = term.getSelection();
+          if (selection) {
+            navigator.clipboard.writeText(selection).catch(() => {});
+          }
+        }
+        return false;
+      }
+
+      // Cmd+V → paste dans le PTY
+      if (event.metaKey && event.key === "v" && !event.ctrlKey) {
+        if (event.type === "keydown") {
+          navigator.clipboard
+            .readText()
+            .then((text) => {
+              if (text) {
+                invoke("pty_write", { id: ptyId, data: text }).catch(() => {});
+              }
+            })
+            .catch(() => {});
+        }
+        return false;
+      }
+
+      // Cmd+A → select all dans le terminal
+      if (event.metaKey && event.key === "a" && !event.ctrlKey) {
+        if (event.type === "keydown") {
+          term.selectAll();
+        }
+        return false;
+      }
+
       return true;
     });
 
