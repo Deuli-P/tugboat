@@ -14,8 +14,17 @@ import {
 import { useTabs } from "../state/tabs";
 import { useUI } from "../state/ui";
 import { usePtyStatus } from "../state/ptyStatus";
+import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import "@xterm/xterm/css/xterm.css";
 import "./Terminal.css";
+
+// Désactive localement (côté xterm.js uniquement, rien n'est envoyé au shell)
+// les modes DEC laissés allumés par un programme qui a planté/été tué sans
+// nettoyer (mouse tracking, bracketed paste) — sinon plus aucune sélection
+// souris locale n'est possible tant que xterm.js croit qu'une appli lit les
+// événements souris.
+const RESET_MODES_SEQUENCE =
+  "\x1b[?1000l\x1b[?1001l\x1b[?1002l\x1b[?1003l\x1b[?1005l\x1b[?1006l\x1b[?1015l\x1b[?2004l";
 
 const SEARCH_DECORATIONS = {
   matchBackground: "rgba(224, 175, 104, 0.35)",
@@ -149,6 +158,7 @@ export function Terminal({
   const termRef = useRef<XTerm | null>(null);
   const searchAddonRef = useRef<SearchAddon | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const frozenScrollRef = useRef<number | null>(null);
   const activeTabId = useTabs((s) => s.activeTabId);
   const themeMode = useUI((s) => s.themeMode);
 
@@ -159,6 +169,11 @@ export function Terminal({
   const searchQueryRef = useRef("");
   searchQueryRef.current = searchQuery;
   const [searchResult, setSearchResult] = useState<ISearchResultChangeEvent | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
+
+  const resetTerminalModes = () => {
+    termRef.current?.write(RESET_MODES_SEQUENCE);
+  };
 
   const closeSearch = () => {
     setSearchOpen(false);
@@ -280,6 +295,21 @@ export function Terminal({
     searchAddonRef.current = searchAddon;
     term.loadAddon(new Unicode11Addon());
     term.unicode.activeVersion = "11";
+
+    // Fige le scroll pendant une sélection en cours pour que l'arrivée de
+    // nouvelles données (ex: logs de `supabase start`) ne fasse pas défiler
+    // le texte sous la souris en plein glisser-sélectionner.
+    const selectionSub = term.onSelectionChange(() => {
+      if (term.hasSelection()) {
+        if (frozenScrollRef.current === null) {
+          frozenScrollRef.current = term.buffer.active.viewportY;
+        }
+      } else if (frozenScrollRef.current !== null) {
+        frozenScrollRef.current = null;
+        term.scrollToBottom();
+      }
+    });
+
     term.open(container);
     fitRef.current = fitAddon;
     termRef.current = term;
@@ -312,7 +342,11 @@ export function Terminal({
     const unlistenDataPromise = listen<string>(
       `pty:data:${ptyId}`,
       (evt) => {
-        term.write(evt.payload);
+        term.write(evt.payload, () => {
+          if (frozenScrollRef.current !== null) {
+            term.scrollToLine(frozenScrollRef.current);
+          }
+        });
       },
     );
 
@@ -359,6 +393,8 @@ export function Terminal({
       dataSub.dispose();
       resizeSub.dispose();
       searchResultSub.dispose();
+      selectionSub.dispose();
+      frozenScrollRef.current = null;
       unlistenDataPromise.then((fn) => fn());
       unlistenClosePromise.then((fn) => fn());
       if (spawned) {
@@ -419,7 +455,13 @@ export function Terminal({
   }, [searchQuery]);
 
   return (
-    <div className="terminal-wrap">
+    <div
+      className="terminal-wrap"
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setCtxMenu({ x: e.clientX, y: e.clientY });
+      }}
+    >
       <div ref={containerRef} className="terminal-container" />
       {waiting && (
         <div className="terminal-waiting" onMouseDown={() => onFocusRef.current?.()}>
@@ -480,6 +522,20 @@ export function Terminal({
             ✕
           </button>
         </div>
+      )}
+      {ctxMenu && (
+        <ContextMenu
+          x={ctxMenu.x}
+          y={ctxMenu.y}
+          items={[
+            {
+              kind: "item",
+              label: "Réinitialiser le terminal",
+              onClick: resetTerminalModes,
+            } satisfies ContextMenuItem,
+          ]}
+          onClose={() => setCtxMenu(null)}
+        />
       )}
     </div>
   );
