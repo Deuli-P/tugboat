@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useButtons, type ExtraPane } from "../state/buttons";
 import { useUI } from "../state/ui";
+import { useTabs, findLeaves } from "../state/tabs";
+import { usePtyStatus } from "../state/ptyStatus";
 import { launchButton } from "../lib/launch";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
+import { PromptModal, type PromptRequest } from "./PromptModal";
 import { UpdaterButton } from "./UpdaterButton";
 import { startTour } from "../lib/tour";
 import {
@@ -41,7 +44,23 @@ export function Sidebar() {
   const toggleSidebar = useUI((s) => s.toggleSidebar);
   const openSettings = useUI((s) => s.openSettings);
 
+  const tabs = useTabs((s) => s.tabs);
+  const ptyStatusMap = usePtyStatus((s) => s.status);
+
+  const buttonStatus = (btnId: string): "running" | "exited" | null => {
+    const tab = tabs.find((t) => t.buttonId === btnId);
+    if (!tab) return null;
+    let anyExited = false;
+    for (const leaf of findLeaves(tab.root)) {
+      const st = ptyStatusMap[leaf.ptyId];
+      if (st === "running") return "running";
+      if (st === "exited") anyExited = true;
+    }
+    return anyExited ? "exited" : null;
+  };
+
   const [menu, setMenu] = useState<MenuState | null>(null);
+  const [promptRequest, setPromptRequest] = useState<PromptRequest | null>(null);
   const [restoreOn, setRestoreOn] = useState(isRestoreEnabled());
 
   const toggleRestore = () => {
@@ -116,23 +135,29 @@ export function Sidebar() {
           kind: "item",
           label: "Renommer le groupe",
           onClick: () => {
-            const newLabel = prompt("Nouveau nom du groupe", groupLabel);
-            if (newLabel && newLabel.trim()) {
-              updateGroup(groupId, { label: newLabel.trim() });
-            }
+            setPromptRequest({
+              title: "Renommer le groupe",
+              initial: groupLabel,
+              submitLabel: "Renommer",
+              onSubmit: (value) => {
+                const trimmed = value.trim();
+                if (trimmed) updateGroup(groupId, { label: trimmed });
+              },
+            });
           },
         },
         {
           kind: "item",
           label: "Changer l'icône",
           onClick: () => {
-            const newIcon = prompt(
-              "Nouvelle icône (emoji ou vide pour retirer)",
-              "",
-            );
-            if (newIcon !== null) {
-              updateGroup(groupId, { icon: newIcon.trim() || null });
-            }
+            setPromptRequest({
+              title: "Changer l'icône",
+              placeholder: "emoji ou vide pour retirer",
+              submitLabel: "Changer",
+              onSubmit: (value) => {
+                updateGroup(groupId, { icon: value.trim() || null });
+              },
+            });
           },
         },
         { kind: "separator" },
@@ -241,6 +266,13 @@ export function Sidebar() {
                         : openIn === "split-h"
                           ? "split →"
                           : "split ↓";
+                    const status = buttonStatus(btnId);
+                    const statusLabel =
+                      status === "running"
+                        ? "en cours"
+                        : status === "exited"
+                          ? "terminé"
+                          : null;
                     return (
                       <button
                         key={btnId}
@@ -253,7 +285,7 @@ export function Sidebar() {
                           openIn === "tab" && !multiInstance
                             ? " · onglet unique"
                             : ""
-                        }`}
+                        }${statusLabel ? ` · ${statusLabel}` : ""}`}
                         onClick={() =>
                           launchButton({
                             id: btnId,
@@ -271,6 +303,10 @@ export function Sidebar() {
                           openButtonMenu(e, groupId, btnId, btnLabel)
                         }
                       >
+                        <span
+                          className={`btn-status-dot${status ? ` ${status}` : ""}`}
+                          aria-hidden="true"
+                        />
                         {btnIcon && (
                           <span className="btn-icon">{btnIcon}</span>
                         )}
@@ -341,6 +377,11 @@ export function Sidebar() {
           onClose={() => setMenu(null)}
         />
       )}
+
+      <PromptModal
+        request={promptRequest}
+        onClose={() => setPromptRequest(null)}
+      />
     </aside>
   );
 }

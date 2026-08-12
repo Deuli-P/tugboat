@@ -1,14 +1,30 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Terminal as XTerm, type ITheme } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
+import { SearchAddon, type ISearchResultChangeEvent } from "@xterm/addon-search";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { openUrl, openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
+import {
+  readText as readClipboardText,
+  writeText as writeClipboardText,
+} from "@tauri-apps/plugin-clipboard-manager";
 import { useTabs } from "../state/tabs";
 import { useUI } from "../state/ui";
+import { usePtyStatus } from "../state/ptyStatus";
 import "@xterm/xterm/css/xterm.css";
 import "./Terminal.css";
+
+const SEARCH_DECORATIONS = {
+  matchBackground: "rgba(224, 175, 104, 0.35)",
+  matchBorder: "#e0af68",
+  matchOverviewRuler: "#e0af68",
+  activeMatchBackground: "rgba(122, 162, 247, 0.45)",
+  activeMatchBorder: "#7aa2f7",
+  activeMatchColorOverviewRuler: "#7aa2f7",
+};
 
 function resolveThemeMode(mode: "light" | "dark" | "system"): "light" | "dark" {
   if (mode === "system") {
@@ -131,8 +147,37 @@ export function Terminal({
   spawnArgsRef.current = { command, args, cwd };
   const fitRef = useRef<FitAddon | null>(null);
   const termRef = useRef<XTerm | null>(null);
+  const searchAddonRef = useRef<SearchAddon | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const activeTabId = useTabs((s) => s.activeTabId);
   const themeMode = useUI((s) => s.themeMode);
+
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchOpenRef = useRef(false);
+  searchOpenRef.current = searchOpen;
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchQueryRef = useRef("");
+  searchQueryRef.current = searchQuery;
+  const [searchResult, setSearchResult] = useState<ISearchResultChangeEvent | null>(null);
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResult(null);
+    searchAddonRef.current?.clearDecorations();
+    termRef.current?.focus();
+  };
+
+  const runSearch = (direction: "next" | "prev") => {
+    const addon = searchAddonRef.current;
+    const term = searchQueryRef.current;
+    if (!addon || !term) return;
+    if (direction === "next") {
+      addon.findNext(term, { decorations: SEARCH_DECORATIONS, incremental: false });
+    } else {
+      addon.findPrevious(term, { decorations: SEARCH_DECORATIONS });
+    }
+  };
 
   useEffect(() => {
     if (waiting) return;
@@ -148,6 +193,7 @@ export function Terminal({
       allowProposedApi: true,
       scrollback: 5000,
       macOptionIsMeta: true,
+      macOptionClickForcesSelection: true,
       theme: buildXtermTheme(initialResolved),
     });
 
@@ -171,17 +217,16 @@ export function Terminal({
         if (event.type === "keydown") {
           const selection = term.getSelection();
           if (selection) {
-            navigator.clipboard.writeText(selection).catch(() => {});
+            writeClipboardText(selection).catch(() => {});
           }
         }
         return false;
       }
 
-      // Cmd+V → paste dans le PTY
+      // Cmd+V → paste dans le PTY (clipboard natif, pas de popup WebView)
       if (event.metaKey && event.key === "v" && !event.ctrlKey) {
         if (event.type === "keydown") {
-          navigator.clipboard
-            .readText()
+          readClipboardText()
             .then((text) => {
               if (text) {
                 invoke("pty_write", { id: ptyId, data: text }).catch(() => {});
@@ -200,6 +245,23 @@ export function Terminal({
         return false;
       }
 
+      // Cmd+F → ouvre la barre de recherche
+      if (event.metaKey && event.key === "f" && !event.ctrlKey) {
+        if (event.type === "keydown") {
+          setSearchOpen(true);
+          requestAnimationFrame(() => searchInputRef.current?.focus());
+        }
+        return false;
+      }
+
+      // Escape → ferme la recherche si elle est ouverte (sinon laisse passer au shell)
+      if (event.key === "Escape" && searchOpenRef.current) {
+        if (event.type === "keydown") {
+          closeSearch();
+        }
+        return false;
+      }
+
       return true;
     });
 
@@ -210,6 +272,14 @@ export function Terminal({
         void handleLinkClick(uri);
       }),
     );
+    const searchAddon = new SearchAddon();
+    term.loadAddon(searchAddon);
+    const searchResultSub = searchAddon.onDidChangeResults((res) => {
+      setSearchResult(res);
+    });
+    searchAddonRef.current = searchAddon;
+    term.loadAddon(new Unicode11Addon());
+    term.unicode.activeVersion = "11";
     term.open(container);
     fitRef.current = fitAddon;
     termRef.current = term;
@@ -233,6 +303,7 @@ export function Terminal({
     })
       .then(() => {
         spawned = true;
+        usePtyStatus.getState().setRunning(ptyId);
       })
       .catch((err) => {
         term.write(`\r\n\x1b[31mFailed to spawn PTY: ${err}\x1b[0m\r\n`);
@@ -247,6 +318,7 @@ export function Terminal({
 
     const unlistenClosePromise = listen(`pty:close:${ptyId}`, () => {
       term.write("\r\n\x1b[90m[process exited]\x1b[0m\r\n");
+      usePtyStatus.getState().setExited(ptyId);
     });
 
     const dataSub = term.onData((data) => {
@@ -286,13 +358,16 @@ export function Terminal({
       ro.disconnect();
       dataSub.dispose();
       resizeSub.dispose();
+      searchResultSub.dispose();
       unlistenDataPromise.then((fn) => fn());
       unlistenClosePromise.then((fn) => fn());
       if (spawned) {
         invoke("pty_kill", { id: ptyId }).catch(() => {});
       }
+      usePtyStatus.getState().clear(ptyId);
       fitRef.current = null;
       termRef.current = null;
+      searchAddonRef.current = null;
       term.dispose();
     };
   }, [ptyId, waiting]);
@@ -329,6 +404,20 @@ export function Terminal({
     return () => mq.removeEventListener("change", apply);
   }, [themeMode]);
 
+  useEffect(() => {
+    const addon = searchAddonRef.current;
+    if (!addon) return;
+    if (!searchQuery) {
+      addon.clearDecorations();
+      setSearchResult(null);
+      return;
+    }
+    addon.findNext(searchQuery, {
+      decorations: SEARCH_DECORATIONS,
+      incremental: true,
+    });
+  }, [searchQuery]);
+
   return (
     <div className="terminal-wrap">
       <div ref={containerRef} className="terminal-container" />
@@ -338,6 +427,58 @@ export function Terminal({
             <span className="waiting-spinner">◐</span>
             <span className="waiting-text">{waiting}</span>
           </div>
+        </div>
+      )}
+      {searchOpen && (
+        <div className="terminal-search-bar">
+          <input
+            ref={searchInputRef}
+            className="terminal-search-input"
+            type="text"
+            placeholder="Rechercher…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                runSearch(e.shiftKey ? "prev" : "next");
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                closeSearch();
+              }
+            }}
+          />
+          <span className="terminal-search-count">
+            {searchQuery
+              ? searchResult && searchResult.resultCount > 0
+                ? `${searchResult.resultIndex + 1}/${searchResult.resultCount}`
+                : "0/0"
+              : ""}
+          </span>
+          <button
+            type="button"
+            className="terminal-search-btn"
+            title="Précédent (Shift+Entrée)"
+            onClick={() => runSearch("prev")}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            className="terminal-search-btn"
+            title="Suivant (Entrée)"
+            onClick={() => runSearch("next")}
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            className="terminal-search-btn"
+            title="Fermer (Échap)"
+            onClick={closeSearch}
+          >
+            ✕
+          </button>
         </div>
       )}
     </div>
