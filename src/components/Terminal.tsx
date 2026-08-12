@@ -73,6 +73,8 @@ function buildXtermTheme(resolved: "light" | "dark"): ITheme {
       brightMagenta: "#8a5cf6",
       brightCyan: "#137a89",
       brightWhite: "#1a1b26",
+      selectionBackground: "rgba(59, 125, 216, 0.30)",
+      selectionInactiveBackground: "rgba(59, 125, 216, 0.15)",
     };
   }
   return {
@@ -95,6 +97,8 @@ function buildXtermTheme(resolved: "light" | "dark"): ITheme {
     brightMagenta: "#bb9af7",
     brightCyan: "#7dcfff",
     brightWhite: "#c0caf5",
+    selectionBackground: "rgba(122, 162, 247, 0.35)",
+    selectionInactiveBackground: "rgba(122, 162, 247, 0.18)",
   };
 }
 
