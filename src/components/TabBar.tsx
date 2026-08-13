@@ -1,5 +1,8 @@
-import { useTabs } from "../state/tabs";
+import { useState } from "react";
+import { useTabs, findLeaves } from "../state/tabs";
 import { useUI } from "../state/ui";
+import { useTerminalActions } from "../state/terminalActions";
+import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import "./TabBar.css";
 
 export function TabBar() {
@@ -10,6 +13,17 @@ export function TabBar() {
   const closeTab = useTabs((s) => s.closeTab);
   const sidebarCollapsed = useUI((s) => s.sidebarCollapsed);
   const toggleSidebar = useUI((s) => s.toggleSidebar);
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; tabId: string } | null>(
+    null,
+  );
+
+  const resetActiveTerminal = (tabId: string) => {
+    const tab = tabs.find((t) => t.id === tabId);
+    if (!tab) return;
+    const leaf = findLeaves(tab.root).find((l) => l.id === tab.activeLeafId);
+    if (!leaf) return;
+    useTerminalActions.getState().reset(leaf.ptyId);
+  };
 
   return (
     <div className="tab-bar" data-tour="tab-bar">
@@ -36,6 +50,11 @@ export function TabBar() {
                 setActiveTab(tab.id);
               }
             }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              setActiveTab(tab.id);
+              setCtxMenu({ x: e.clientX, y: e.clientY, tabId: tab.id });
+            }}
           >
             <span className="tab-title">{tab.title}</span>
             <button
@@ -55,6 +74,20 @@ export function TabBar() {
       <button className="tab-add" onClick={() => addTab()} aria-label="New tab">
         +
       </button>
+      {ctxMenu && (
+        <ContextMenu
+          x={ctxMenu.x}
+          y={ctxMenu.y}
+          items={[
+            {
+              kind: "item",
+              label: "Réinitialiser le terminal",
+              onClick: () => resetActiveTerminal(ctxMenu.tabId),
+            } satisfies ContextMenuItem,
+          ]}
+          onClose={() => setCtxMenu(null)}
+        />
+      )}
     </div>
   );
 }

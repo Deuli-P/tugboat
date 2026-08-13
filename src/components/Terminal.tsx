@@ -14,7 +14,7 @@ import {
 import { useTabs } from "../state/tabs";
 import { useUI } from "../state/ui";
 import { usePtyStatus } from "../state/ptyStatus";
-import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
+import { useTerminalActions } from "../state/terminalActions";
 import "@xterm/xterm/css/xterm.css";
 import "./Terminal.css";
 
@@ -173,7 +173,6 @@ export function Terminal({
   const searchQueryRef = useRef("");
   searchQueryRef.current = searchQuery;
   const [searchResult, setSearchResult] = useState<ISearchResultChangeEvent | null>(null);
-  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
 
   const resetTerminalModes = () => {
     termRef.current?.write(RESET_MODES_SEQUENCE);
@@ -323,6 +322,7 @@ export function Terminal({
     }
     fitRef.current = fitAddon;
     termRef.current = term;
+    useTerminalActions.getState().register(ptyId, resetTerminalModes);
     try {
       fitAddon.fit();
     } catch {
@@ -411,6 +411,7 @@ export function Terminal({
         invoke("pty_kill", { id: ptyId }).catch(() => {});
       }
       usePtyStatus.getState().clear(ptyId);
+      useTerminalActions.getState().unregister(ptyId);
       fitRef.current = null;
       termRef.current = null;
       searchAddonRef.current = null;
@@ -465,13 +466,7 @@ export function Terminal({
   }, [searchQuery]);
 
   return (
-    <div
-      className="terminal-wrap"
-      onContextMenu={(e) => {
-        e.preventDefault();
-        setCtxMenu({ x: e.clientX, y: e.clientY });
-      }}
-    >
+    <div className="terminal-wrap">
       <div ref={containerRef} className="terminal-container" />
       {waiting && (
         <div className="terminal-waiting" onMouseDown={() => onFocusRef.current?.()}>
@@ -536,20 +531,6 @@ export function Terminal({
             ✕
           </button>
         </div>
-      )}
-      {ctxMenu && (
-        <ContextMenu
-          x={ctxMenu.x}
-          y={ctxMenu.y}
-          items={[
-            {
-              kind: "item",
-              label: "Réinitialiser le terminal",
-              onClick: resetTerminalModes,
-            } satisfies ContextMenuItem,
-          ]}
-          onClose={() => setCtxMenu(null)}
-        />
       )}
     </div>
   );
