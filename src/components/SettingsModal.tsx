@@ -111,6 +111,10 @@ export function SettingsModal() {
                   onChange={(e) =>
                     patch({ background: e.target.value || undefined })
                   }
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                 />
               </label>
               <label className="color-field">
@@ -128,6 +132,10 @@ export function SettingsModal() {
                   onChange={(e) =>
                     patch({ text: e.target.value || undefined })
                   }
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                 />
               </label>
               <label className="color-field">
@@ -145,6 +153,10 @@ export function SettingsModal() {
                   onChange={(e) =>
                     patch({ button: e.target.value || undefined })
                   }
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                 />
               </label>
             </div>

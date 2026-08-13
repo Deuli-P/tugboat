@@ -229,6 +229,10 @@ function ButtonEditorInner({
                   onChange={(e) => setIcon(e.target.value)}
                   placeholder="🚀"
                   maxLength={4}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                 />
               </div>
             </div>
@@ -242,6 +246,10 @@ function ButtonEditorInner({
                 onChange={(e) => setLabel(e.target.value)}
                 placeholder="Ex: Connexion VPS"
                 autoFocus
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
               />
             </label>
           </div>
@@ -266,6 +274,10 @@ function ButtonEditorInner({
               onChange={(e) => setCommandLine(e.target.value)}
               placeholder="Ex: ssh pierre@1.2.3.4, supabase db push, claude"
               className="mono"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
             />
             {parsedTokens.length > 0 && (
               <div className="parse-preview">
@@ -289,6 +301,10 @@ function ButtonEditorInner({
                 onChange={(e) => setCwd(e.target.value)}
                 placeholder="Optionnel — laisse vide pour ~"
                 className="mono grow"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
               />
               <button
                 type="button"
@@ -401,6 +417,10 @@ function ButtonEditorInner({
                     }
                     placeholder="Ligne de commande (vide = shell)"
                     className="mono"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
                   />
                   {tokens.length > 0 && (
                     <div className="parse-preview">
@@ -422,6 +442,10 @@ function ButtonEditorInner({
                       }
                       placeholder="cwd (vide = hérite du bouton)"
                       className="mono grow"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck={false}
                     />
                     <button
                       type="button"
@@ -460,6 +484,10 @@ function ButtonEditorInner({
                         }
                         placeholder="Ex: Started supabase local"
                         className="mono"
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck={false}
                       />
                     </label>
                   </div>
@@ -496,6 +524,10 @@ function ButtonEditorInner({
                 value={newGroupLabel}
                 onChange={(e) => setNewGroupLabel(e.target.value)}
                 placeholder="Ex: Serveurs, Dev, Perso…"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
               />
             </label>
           )}

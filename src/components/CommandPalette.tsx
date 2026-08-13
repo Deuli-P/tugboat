@@ -153,6 +153,10 @@ export function CommandPalette({ open, onClose }: Props) {
               setSelected(0);
             }}
             placeholder="Rechercher un bouton, ou taper 'shell'…"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
           />
         </div>
         <div className="palette-list" ref={listRef}>

@@ -101,6 +101,10 @@ export function IconPicker({ current, onPick, onClose }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
           />
           {current && (
             <button

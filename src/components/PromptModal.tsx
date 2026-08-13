@@ -45,6 +45,10 @@ export function PromptModal({ request, onClose }: Props) {
           value={value}
           placeholder={request.placeholder}
           onChange={(e) => setValue(e.target.value)}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();

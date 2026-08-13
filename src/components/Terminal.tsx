@@ -206,7 +206,7 @@ export function Terminal({
     const initialResolved = resolveThemeMode(themeMode);
     const term = new XTerm({
       fontFamily:
-        'Menlo, "SF Mono", Monaco, Consolas, "Liberation Mono", monospace',
+        '"JetBrainsMono Nerd Font Mono", Menlo, "SF Mono", Monaco, Consolas, "Liberation Mono", monospace',
       fontSize: 13,
       cursorBlink: true,
       allowProposedApi: true,
@@ -248,7 +248,7 @@ export function Terminal({
           readClipboardText()
             .then((text) => {
               if (text) {
-                invoke("pty_write", { id: ptyId, data: text }).catch(() => {});
+                term.paste(text);
               }
             })
             .catch(() => {});
@@ -315,6 +315,12 @@ export function Terminal({
     });
 
     term.open(container);
+    if (term.textarea) {
+      term.textarea.setAttribute("autocomplete", "off");
+      term.textarea.setAttribute("autocorrect", "off");
+      term.textarea.setAttribute("autocapitalize", "off");
+      term.textarea.setAttribute("data-form-type", "other");
+    }
     fitRef.current = fitAddon;
     termRef.current = term;
     try {
@@ -484,6 +490,10 @@ export function Terminal({
             placeholder="Rechercher…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
